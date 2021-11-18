@@ -24,7 +24,7 @@ package templates
 type APITemplateArgs struct {
 	Name      string
 	Namespace string
-	Spec      string
+	Spec      []string
 }
 
 var APITemplate = `
@@ -36,5 +36,7 @@ metadata:
   namespace: {{ .Namespace }}
 spec:
   spec: |
-    {{ .Spec }}
+  {{- range $line := .Spec }}
+    {{ $line -}}
+  {{- end }}
 `

@@ -21,142 +21,16 @@ THE SOFTWARE.
 */
 package cmd
 
-import (
-	"fmt"
-	"html/template"
-	"os"
-
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/ghodss/yaml"
-	"github.com/spf13/cobra"
-
-	"github.com/kubeshop/kgw/options"
-	"github.com/kubeshop/kgw/spec"
-	"github.com/kubeshop/kgw/templates"
-)
-
-var (
-	apiTemplate *template.Template
-	apiSpecPath string
-
-	name      string
-	namespace string
-	apiSpec   string
-
-	serviceName      string
-	serviceNamespace string
-	servicePort      uint32
-)
+import "github.com/spf13/cobra"
 
 // apiCmd represents the api command
 var apiCmd = &cobra.Command{
 	Use:   "api",
-	Short: "Generate kusk gateway api resources from an OpenAPI spec",
+	Short: "parent command for api related functions",
 	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
-
-		parsedApiSpec, err := spec.NewParser(openapi3.NewLoader()).Parse(apiSpecPath)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-
-		// If options defined
-		// . command line args defined
-
-		if _, ok := parsedApiSpec.ExtensionProps.Extensions["x-kusk"]; !ok {
-			service := fmt.Sprintf("%s.%s.svc.cluster.local", serviceName, serviceNamespace)
-			parsedApiSpec.ExtensionProps.Extensions["x-kusk"] = map[string]interface{}{
-				"service": map[string]interface{}{
-					"name": service,
-					"port": servicePort,
-				},
-			}
-		}
-
-		b, err := yaml.Marshal(parsedApiSpec.ExtensionProps.Extensions["x-kusk"])
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-
-		var o options.Options
-		if err := yaml.Unmarshal(b, &o); err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-
-		if err := o.FillDefaultsAndValidate(); err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-
-		if err := apiTemplate.Execute(os.Stdout, templates.APITemplateArgs{
-			Name:      name,
-			Namespace: namespace,
-			Spec:      apiSpec,
-		}); err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-	},
+	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
 	rootCmd.AddCommand(apiCmd)
-
-	apiCmd.Flags().StringVarP(
-		&name,
-		"name",
-		"",
-		"",
-		"the name to give the API resource",
-	)
-	apiCmd.MarkFlagRequired("name")
-
-	apiCmd.Flags().StringVarP(
-		&namespace,
-		"namespace",
-		"n",
-		"default",
-		"the namespace of the API resource",
-	)
-
-	apiCmd.Flags().StringVarP(
-		&apiSpecPath,
-		"in",
-		"i",
-		"",
-		"file path to api spec file to generate mappings from. e.g. --in apispec.yaml",
-	)
-	apiCmd.MarkFlagRequired("in")
-
-	apiCmd.Flags().StringVarP(
-		&serviceName,
-		"upstream.service",
-		"",
-		"",
-		"name of upstream service",
-	)
-	apiCmd.MarkFlagRequired("upstream.service")
-
-	apiCmd.Flags().StringVarP(
-		&serviceNamespace,
-		"upstream.namespace",
-		"",
-		"default",
-		"namespace of upstream service",
-	)
-	apiCmd.MarkFlagRequired("upstream.service")
-
-	apiCmd.Flags().Uint32VarP(
-		&servicePort,
-		"upstream.port",
-		"",
-		80,
-		"port of upstream service",
-	)
-	apiCmd.MarkFlagRequired("upstream.port")
-
-	apiTemplate = template.Must(template.New("api").Parse(templates.APITemplate))
 }
