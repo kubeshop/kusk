@@ -22,10 +22,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-package main
+package templates
 
-import "github.com/kubeshop/kgw/cmd"
-
-func main() {
-	cmd.Execute()
+type APITemplateArgs struct {
+	Name      string
+	Namespace string
+	Spec      []string
 }
+
+var APITemplate = `
+---
+apiVersion: gateway.kusk.io/v1alpha1
+kind: API
+metadata:
+  name: {{ .Name }}
+  namespace: {{ .Namespace }}
+spec:
+  spec: |
+  {{- range $line := .Spec }}
+    {{ $line -}}
+  {{- end }}
+`

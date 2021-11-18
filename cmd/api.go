@@ -20,12 +20,20 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
+.
 */
-package main
+package cmd
 
-import "github.com/kubeshop/kgw/cmd"
+import "github.com/spf13/cobra"
 
-func main() {
-	cmd.Execute()
+// apiCmd represents the api command
+var apiCmd = &cobra.Command{
+	Use:   "api",
+	Short: "parent command for api related functions",
+	Long:  ``,
+	Run:   func(cmd *cobra.Command, args []string) {},
+}
+
+func init() {
+	rootCmd.AddCommand(apiCmd)
 }

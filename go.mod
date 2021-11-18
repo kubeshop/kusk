@@ -1,4 +1,4 @@
-module github.com/kubeshop/kusk-api-cli
+module github.com/kubeshop/kgw
 
 go 1.17
 
@@ -9,8 +9,11 @@ require (
 
 require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
+	github.com/getkin/kin-openapi v0.81.0
+	github.com/ghodss/yaml v1.0.0
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/kubeshop/kusk-gateway v0.0.0-20211118165054-5c2329f92830
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
@@ -23,4 +26,16 @@ require (
 	golang.org/x/text v0.3.6 // indirect
 	gopkg.in/ini.v1 v1.63.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+)
+
+require (
+	github.com/go-openapi/jsonpointer v0.19.5 // indirect
+	github.com/go-openapi/swag v0.19.14 // indirect
+	github.com/mailru/easyjson v0.7.6 // indirect
+)
+
+require (
+	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496 // indirect
+	github.com/go-ozzo/ozzo-validation/v4 v4.3.0 // indirect
+	github.com/josharian/intern v1.0.0 // indirect
 )
