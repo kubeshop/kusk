@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/kubeshop/kusk-api-cli/cmd"
+import "github.com/kubeshop/kgw/cmd"
 
 func main() {
 	cmd.Execute()
