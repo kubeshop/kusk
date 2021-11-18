@@ -30,6 +30,7 @@ import (
 	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
 
+	"github.com/kubeshop/kgw/options"
 	"github.com/kubeshop/kgw/spec"
 	"github.com/kubeshop/kgw/templates"
 )
@@ -41,6 +42,10 @@ var (
 	name      string
 	namespace string
 	apiSpec   string
+
+	serviceName      string
+	serviceNamespace string
+	servicePort      uint32
 )
 
 // apiCmd represents the api command
@@ -56,13 +61,35 @@ var apiCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		marshalledApiSpec, err := yaml.Marshal(parsedApiSpec)
+		// If options defined
+		// . command line args defined
+
+		if _, ok := parsedApiSpec.ExtensionProps.Extensions["x-kusk"]; !ok {
+			service := fmt.Sprintf("%s.%s.svc.cluster.local", serviceName, serviceNamespace)
+			parsedApiSpec.ExtensionProps.Extensions["x-kusk"] = map[string]interface{}{
+				"service": map[string]interface{}{
+					"name": service,
+					"port": servicePort,
+				},
+			}
+		}
+
+		b, err := yaml.Marshal(parsedApiSpec.ExtensionProps.Extensions["x-kusk"])
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 
-		apiSpec = string(marshalledApiSpec)
+		var o options.Options
+		if err := yaml.Unmarshal(b, &o); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+
+		if err := o.FillDefaultsAndValidate(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
 
 		if err := apiTemplate.Execute(os.Stdout, templates.APITemplateArgs{
 			Name:      name,
@@ -103,6 +130,33 @@ func init() {
 		"file path to api spec file to generate mappings from. e.g. --in apispec.yaml",
 	)
 	apiCmd.MarkFlagRequired("in")
+
+	apiCmd.Flags().StringVarP(
+		&serviceName,
+		"upstream.service",
+		"",
+		"",
+		"name of upstream service",
+	)
+	apiCmd.MarkFlagRequired("upstream.service")
+
+	apiCmd.Flags().StringVarP(
+		&serviceNamespace,
+		"upstream.namespace",
+		"",
+		"default",
+		"namespace of upstream service",
+	)
+	apiCmd.MarkFlagRequired("upstream.service")
+
+	apiCmd.Flags().Uint32VarP(
+		&servicePort,
+		"upstream.port",
+		"",
+		80,
+		"port of upstream service",
+	)
+	apiCmd.MarkFlagRequired("upstream.port")
 
 	apiTemplate = template.Must(template.New("api").Parse(templates.APITemplate))
 }
