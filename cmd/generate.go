@@ -24,10 +24,10 @@ import (
 	"github.com/getkin/kin-openapi/jsoninfo"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/ghodss/yaml"
+	"github.com/kubeshop/kusk-gateway/options"
+	"github.com/kubeshop/kusk-gateway/spec"
 	"github.com/spf13/cobra"
 
-	"github.com/kubeshop/kgw/options"
-	"github.com/kubeshop/kgw/spec"
 	"github.com/kubeshop/kgw/templates"
 )
 
@@ -61,12 +61,14 @@ var generateCmd = &cobra.Command{
 		}
 
 		if serviceName != "" && serviceNamespace != "" && servicePort != 0 {
-			service := fmt.Sprintf("%s.%s.svc.cluster.local", serviceName, serviceNamespace)
-
 			xKusk := parsedApiSpec.ExtensionProps.Extensions["x-kusk"].(options.Options)
-
-			xKusk.Service.Name = service
-			xKusk.Service.Port = servicePort
+			xKusk.Upstream = &options.UpstreamOptions{
+				Service: &options.UpstreamService{
+					Name:      serviceName,
+					Namespace: serviceNamespace,
+					Port:      servicePort,
+				},
+			}
 
 			parsedApiSpec.ExtensionProps.Extensions["x-kusk"] = xKusk
 		}
@@ -132,16 +134,16 @@ func getAPISpecString(apiSpec *openapi3.T) (string, error) {
 func init() {
 	apiCmd.AddCommand(generateCmd)
 
-	apiCmd.Flags().StringVarP(
+	generateCmd.Flags().StringVarP(
 		&name,
 		"name",
 		"",
 		"",
 		"the name to give the API resource",
 	)
-	apiCmd.MarkFlagRequired("name")
+	generateCmd.MarkFlagRequired("name")
 
-	apiCmd.Flags().StringVarP(
+	generateCmd.Flags().StringVarP(
 		&namespace,
 		"namespace",
 		"n",
@@ -149,16 +151,16 @@ func init() {
 		"the namespace of the API resource",
 	)
 
-	apiCmd.Flags().StringVarP(
+	generateCmd.Flags().StringVarP(
 		&apiSpecPath,
 		"in",
 		"i",
 		"",
 		"file path to api spec file to generate mappings from. e.g. --in apispec.yaml",
 	)
-	apiCmd.MarkFlagRequired("in")
+	generateCmd.MarkFlagRequired("in")
 
-	apiCmd.Flags().StringVarP(
+	generateCmd.Flags().StringVarP(
 		&serviceName,
 		"upstream.service",
 		"",
@@ -166,7 +168,7 @@ func init() {
 		"name of upstream service",
 	)
 
-	apiCmd.Flags().StringVarP(
+	generateCmd.Flags().StringVarP(
 		&serviceNamespace,
 		"upstream.namespace",
 		"",
@@ -174,7 +176,7 @@ func init() {
 		"namespace of upstream service",
 	)
 
-	apiCmd.Flags().Uint32VarP(
+	generateCmd.Flags().Uint32VarP(
 		&servicePort,
 		"upstream.port",
 		"",
