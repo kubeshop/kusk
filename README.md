@@ -61,7 +61,7 @@ x-kusk:
 [(Back to top)](#table-of-contents)
 
 ## Homebrew
-`brew install kubeshop/kusk/kusk-gateway-cli`
+`brew install kubeshop/kusk/kgw`
 
 ## Latest release on Github
 `go install github.com/kubeshop/kusk-gateway-cli@$VERSION`
@@ -78,7 +78,7 @@ go install
 [(Back to top)](#table-of-contents)
 
 ## Homebrew
-`brew upgrade kubeshop/kusk/kusk-gateway-cli`
+`brew upgrade kubeshop/kusk/kgw`
 
 ## Latest release on Github
 `go install github.com/kubeshop/kusk-gateway-cli@$VERSION`
