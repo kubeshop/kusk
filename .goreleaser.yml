@@ -29,6 +29,7 @@ release:
   prerelease: auto
 brews:
   -
+    name: kgw
     tap:
       owner: kubeshop
       name: homebrew-kusk-gateway-cli
