@@ -24,14 +24,25 @@ THE SOFTWARE.
 */
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"fmt"
+	"os"
+
+	"github.com/spf13/cobra"
+)
 
 // apiCmd represents the api command
 var apiCmd = &cobra.Command{
 	Use:   "api",
 	Short: "parent command for api related functions",
 	Long:  ``,
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Run:   func(cmd *cobra.Command, args []string) {
+		// Currently api only has one sub command
+		fmt.Fprint(os.Stderr, "The api command cannot be run directly. Please run: kgw api generate\n")
+
+		// In future, remove this when new sub commands are added and simply call cmd.Help()
+		generateCmd.Help()
+	},
 }
 
 func init() {
