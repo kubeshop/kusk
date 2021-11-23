@@ -29,10 +29,9 @@ release:
   prerelease: auto
 brews:
   -
-    name: kgw
     tap:
       owner: kubeshop
-      name: homebrew-kusk-gateway-cli
+      name: homebrew-kusk
     description: Make your OpenAPI definition the source of truth for API resources in cluster
     homepage: https://kusk.io
     license: "MIT"
