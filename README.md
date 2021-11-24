@@ -73,6 +73,7 @@ You can get a list of the available kgw versions from our [releases page](https:
 ## Easy install script
 This will install `kgw` into `/usr/local/bin/kgw`
 
+On Linux, sudo rights are required to access `/usr/local/bin`. Please run with `sudo`.
 ```sh
 bash < <(curl -sSLf https://github.com/kubeshop/kgw/blob/main/scripts/install.sh)
 ```

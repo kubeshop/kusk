@@ -1,4 +1,4 @@
-!/usr/bin/env sh
+#!/usr/bin/env sh
 
 set -e
 
@@ -47,6 +47,13 @@ echo "Downloading kgw from URL: $(_download_url)"
 curl -sSLf $(_download_url) > kgw.tar.gz
 tar -xzf kgw.tar.gz kgw
 rm kgw.tar.gz
-mv kgw /usr/local/bin/kgw
+
+if [ "$(uname)" ] == "Linux" ];then
+echo "On Linux sudo rights are needed to move the binary to /usr/local/bin, please type your password when asked"
+  sudo mv kwg /usr/local/bin/kgw
+else
+  mv kwg /usr/local/bin/kgw
+fi
+
 echo "kgw installed in /usr/local/bin/kgw"
 
