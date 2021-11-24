@@ -63,15 +63,36 @@ x-kusk:
 ## Homebrew
 `brew install kubeshop/kusk/kgw`
 
-## Latest release on Github
-`go install github.com/kubeshop/kusk-gateway-cli@$VERSION`
+## Go install the latest release on Github
+`go install github.com/kubeshop/kgw@latest`
+
+To install a particular version: replace `latest` with the version number
+
+You can get a list of the available kgw versions from our [releases page](https://github.com/kubeshop/kgw/releases)
+
+## Easy install script
+This will install `kgw` into `/usr/local/bin/kgw`
+
+```sh
+bash < <(curl -sSLf https://github.com/kubeshop/kgw/blob/main/scripts/install.sh)
+```
 
 ## From source
 ```
-git clone git@github.com:kubeshop/kusk-gateway-cli.git && \
-cd kusk-gateway-cli && \
+git clone git@github.com:kubeshop/kgw.git && \
+cd kgw && \
 go install
 ```
+
+## Alternative installation method (manual)
+
+If you don't like automatic scripts you can always use the manual install:
+
+1. Download binary with version of your choice (recent one is recommended)
+2. Upack it (tar -zxvf kgw_0.1.0_Linux_arm64.tar.gz)
+3. Move it to a location in the PATH. For example `mv kgw_0.1.0_Linux_arm64/kgw /usr/local/bin/kgw`
+
+For Windows, download the binary from [here](https://github.com/kubeshop/kgw/releases), unpack the binary and add it to `%PATH%`. 
 
 # Updating
 
@@ -81,10 +102,10 @@ go install
 `brew upgrade kubeshop/kusk/kgw`
 
 ## Latest release on Github
-`go install github.com/kubeshop/kusk-gateway-cli@$VERSION`
+`go install github.com/kubeshop/kgw@$VERSION`
 
 ## From source
-Insde the kusk-gateway-cli repository directory
+Insde the kgw repository directory
 ```
 git pull && go install
 ```
