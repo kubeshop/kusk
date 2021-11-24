@@ -106,7 +106,7 @@ For Windows, download the binary from [here](https://github.com/kubeshop/kgw/rel
 `go install github.com/kubeshop/kgw@$VERSION`
 
 ## From source
-Insde the kgw repository directory
+Insde of the kgw repository directory
 ```
 git pull && go install
 ```
