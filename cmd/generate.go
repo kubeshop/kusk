@@ -70,6 +70,12 @@ var generateCmd = &cobra.Command{
 	and leave the rest of the settings as they are
 
 	Sample usage
+
+	No name specified
+	kgw api generate -i spec.yaml
+
+	In the above example, kgw will use the openapi spec info.title to generate a manifest name and leave the existing
+	x-kusk extension settings
 	
 	No namespace specified
 	kgw api generate -i spec.yaml --name httpbin-api --upstream.service httpbin --upstream.port 8080
@@ -100,6 +106,13 @@ var generateCmd = &cobra.Command{
 			parsedApiSpec.ExtensionProps.Extensions["x-kusk"] = options.Options{}
 		}
 
+		// if name flag is not defined, use the swagger doc title which is guarunteed to be there
+		if name == "" {
+			// kubernetes manifests cannot have . in the name so replace them
+			name = strings.ReplaceAll(parsedApiSpec.Info.Title, ".", "-")
+		}
+
+		// override top level upstream service if defined.
 		if serviceName != "" && serviceNamespace != "" && servicePort != 0 {
 			xKusk := parsedApiSpec.ExtensionProps.Extensions["x-kusk"].(options.Options)
 			xKusk.Upstream = &options.UpstreamOptions{
@@ -176,7 +189,6 @@ func init() {
 		"",
 		"the name to give the API resource e.g. --name my-api",
 	)
-	generateCmd.MarkFlagRequired("name")
 
 	generateCmd.Flags().StringVarP(
 		&namespace,
