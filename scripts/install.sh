@@ -48,6 +48,14 @@ curl -sSLf $(_download_url) > kgw.tar.gz
 tar -xzf kgw.tar.gz kgw
 rm kgw.tar.gz
 
+install_dir=$1
+if [ "$install_dir" != "" ]; then
+        mkdir -p "$install_dir"
+        mv kgw "${install_dir}/kgw"
+        echo "kgw installed in ${install_dir}"
+        exit 0
+fi
+
 if [ "$(uname)" == "Linux" ]; then
         echo "On Linux sudo rights are needed to move the binary to /usr/local/bin, please type your password when asked"
         sudo mv kgw /usr/local/bin/kgw
