@@ -26,12 +26,12 @@ A CLI utility helper for creating Kusk Gateway API resources from your OpenAPI s
 ## Flags
 |          Flag          |                                             Description                                             | Required? |
 |:----------------------:|:---------------------------------------------------------------------------------------------------:|:---------:|
-|        `--name`        |                         the name to give the API resource e.g. --name my-api                        |     ✅     |
+|        `--name`        | the name to give the API resource e.g. --name my-api. Otherwise taken from OpenAPI info title field |     ❌     |
 |  `--namespace` / `-n`  | the namespace of the API resource e.g. --namespace my-namespace, -n my-namespace (default: default) |     ❌     |
 |      `--in` / `-i`     |       file path or URL to OpenAPI spec file to generate mappings from. e.g. --in apispec.yaml       |     ✅     |
-|  `--upstream.service`  |                                 name of upstream Kubernetes service                                 |     ✅     |
-| `--upstream.namespace` |                           namespace of upstream service (default: default)                          |     ✅     |
-|    `--upstream.port`   |                        port that upstream service is exposed on (default: 80)                       |     ✅     |
+|  `--upstream.service`  |                                 name of upstream Kubernetes service                                 |     ❌     |
+| `--upstream.namespace` |                           namespace of upstream service (default: default)                          |     ❌     |
+|    `--upstream.port`   |                        port that upstream service is exposed on (default: 80)                       |     ❌     |
 
 ## Example
 Take a look at the [http-bin example spec](./examples/httpbin-spec.yaml)
