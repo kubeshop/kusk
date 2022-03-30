@@ -6,6 +6,11 @@ if [ ! -z "${DEBUG}" ];
 then set -x 
 fi
 
+_sudo () {
+    [[ $EUID = 0 ]] || set -- command sudo "$@"
+    "$@"
+}
+
 _detect_arch() {
     case $(uname -m) in
     amd64|x86_64) echo "x86_64"
@@ -60,7 +65,7 @@ fi
 
 if [ "$(uname)" == "Linux" ]; then
         echo "On Linux sudo rights are needed to move the binary to /usr/local/bin, please type your password when asked"
-        sudo mv kgw /usr/local/bin/kgw
+        _sudo mv kgw /usr/local/bin/kgw
 else
         mv kgw /usr/local/bin/kgw
 fi
