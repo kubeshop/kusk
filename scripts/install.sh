@@ -34,13 +34,15 @@ _detect_os(){
 _download_url() {
         local arch="$(_detect_arch)"
         local os="$(_detect_os)"
+        local version=$KGW_VERSION
+
         if [ -z "$KGW_VERSION" ]
         then
-                local version=`curl -s https://api.github.com/repos/kubeshop/kgw/releases/latest 2>/dev/null | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`
-                echo "https://github.com/kubeshop/kgw/releases/download/${version}/kgw_${version}_${os}_${arch}.tar.gz"
-        else
-                echo "https://github.com/kubeshop/kgw/releases/download/${KGW_VERSION}/kgw_${KGW_VERSION}_${os}_${arch}.tar.gz"
+                version=`curl -s https://api.github.com/repos/kubeshop/kgw/releases/latest 2>/dev/null | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`
         fi
+
+        local trailedVersion=`echo $version | tr -d v`
+        echo "https://github.com/kubeshop/kgw/releases/download/${version}/kgw_${trailedVersion}_${os}_${arch}.tar.gz"
 }
 
 echo "Downloading kgw from URL: $(_download_url)"
