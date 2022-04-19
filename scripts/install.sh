@@ -39,36 +39,36 @@ _detect_os(){
 _download_url() {
         local arch="$(_detect_arch)"
         local os="$(_detect_os)"
-        local version=$KGW_VERSION
+        local version=$kusk_VERSION
 
-        if [ -z "$KGW_VERSION" ]
+        if [ -z "$kusk_VERSION" ]
         then
-                version=`curl -s https://api.github.com/repos/kubeshop/kgw/releases/latest 2>/dev/null | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`
+                version=`curl -s https://api.github.com/repos/kubeshop/kusk/releases/latest 2>/dev/null | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`
         fi
 
         local trailedVersion=`echo $version | tr -d v`
-        echo "https://github.com/kubeshop/kgw/releases/download/${version}/kgw_${trailedVersion}_${os}_${arch}.tar.gz"
+        echo "https://github.com/kubeshop/kusk/releases/download/${version}/kusk_${trailedVersion}_${os}_${arch}.tar.gz"
 }
 
-echo "Downloading kgw from URL: $(_download_url)"
-curl -sSLf $(_download_url) > kgw.tar.gz
-tar -xzf kgw.tar.gz kgw
-rm kgw.tar.gz
+echo "Downloading kusk from URL: $(_download_url)"
+curl -sSLf $(_download_url) > kusk.tar.gz
+tar -xzf kusk.tar.gz kusk
+rm kusk.tar.gz
 
 install_dir=$1
 if [ "$install_dir" != "" ]; then
         mkdir -p "$install_dir"
-        mv kgw "${install_dir}/kgw"
-        echo "kgw installed in ${install_dir}"
+        mv kusk "${install_dir}/kusk"
+        echo "kusk installed in ${install_dir}"
         exit 0
 fi
 
 if [ "$(uname)" == "Linux" ]; then
         echo "On Linux sudo rights are needed to move the binary to /usr/local/bin, please type your password when asked"
-        _sudo mv kgw /usr/local/bin/kgw
+        _sudo mv kusk /usr/local/bin/kusk
 else
-        mv kgw /usr/local/bin/kgw
+        mv kusk /usr/local/bin/kusk
 fi
 
-echo "kgw installed in /usr/local/bin/kgw"
+echo "kusk installed in /usr/local/bin/kusk"
 
