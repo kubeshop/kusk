@@ -37,7 +37,7 @@ A CLI utility helper for creating Kusk Gateway API resources from your OpenAPI s
 Take a look at the [http-bin example spec](./examples/httpbin-spec.yaml)
 
 ```
-kgw api generate -i ./examples/httpbin-spec.yaml --name httpbin-api --upstream.service httpbin --upstream.port 8080
+kusk api generate -i ./examples/httpbin-spec.yaml --name httpbin-api --upstream.service httpbin --upstream.port 8080
 ```
 
 The output should contain the following x-kusk extension at the top level
@@ -61,26 +61,26 @@ x-kusk:
 [(Back to top)](#table-of-contents)
 
 ## Homebrew
-`brew install kubeshop/kusk/kgw`
+`brew install kubeshop/kusk/kusk`
 
 ## Go install the latest release on Github
-`go install github.com/kubeshop/kgw@latest`
+`go install github.com/kubeshop/kusk@latest`
 
 To install a particular version: replace `latest` with the version number
 
-You can get a list of the available kgw versions from our [releases page](https://github.com/kubeshop/kgw/releases)
+You can get a list of the available kusk versions from our [releases page](https://github.com/kubeshop/kusk/releases)
 
 ## Easy install script
-This will install `kgw` into `/usr/local/bin/kgw`
+This will install `kusk` into `/usr/local/bin/kusk`
 
 ```sh
-bash < <(curl -sSLf https://raw.githubusercontent.com/kubeshop/kgw/main/scripts/install.sh)
+bash < <(curl -sSLf https://raw.githubusercontent.com/kubeshop/kusk/main/scripts/install.sh)
 ```
 
 ## From source
 ```
-git clone git@github.com:kubeshop/kgw.git && \
-cd kgw && \
+git clone git@github.com:kubeshop/kusk.git && \
+cd kusk && \
 go install
 ```
 
@@ -89,23 +89,23 @@ go install
 If you don't like automatic scripts you can always use the manual install:
 
 1. Download binary with version of your choice (recent one is recommended)
-2. Upack it (tar -zxvf kgw_0.1.0_Linux_arm64.tar.gz)
-3. Move it to a location in the PATH. For example `mv kgw_0.1.0_Linux_arm64/kgw /usr/local/bin/kgw`
+2. Upack it (tar -zxvf kusk_0.1.0_Linux_arm64.tar.gz)
+3. Move it to a location in the PATH. For example `mv kusk_0.1.0_Linux_arm64/kusk /usr/local/bin/kusk`
 
-For Windows, download the binary from [here](https://github.com/kubeshop/kgw/releases), unpack the binary and add it to `%PATH%`. 
+For Windows, download the binary from [here](https://github.com/kubeshop/kusk/releases), unpack the binary and add it to `%PATH%`. 
 
 # Updating
 
 [(Back to top)](#table-of-contents)
 
 ## Homebrew
-`brew upgrade kubeshop/kusk/kgw`
+`brew upgrade kubeshop/kusk/kusk`
 
 ## Latest release on Github
-`go install github.com/kubeshop/kgw@$VERSION`
+`go install github.com/kubeshop/kusk@$VERSION`
 
 ## From source
-Insde of the kgw repository directory
+Insde of the kusk repository directory
 ```
 git pull && go install
 ```

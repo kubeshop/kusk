@@ -36,9 +36,9 @@ var apiCmd = &cobra.Command{
 	Use:   "api",
 	Short: "parent command for api related functions",
 	Long:  ``,
-	Run:   func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, args []string) {
 		// Currently api only has one sub command
-		fmt.Fprint(os.Stderr, "The api command cannot be run directly. Please run: kgw api generate\n")
+		fmt.Fprint(os.Stderr, "The api command cannot be run directly. Please run: kusk api generate\n")
 
 		// In future, remove this when new sub commands are added and simply call cmd.Help()
 		generateCmd.Help()

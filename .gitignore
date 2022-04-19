@@ -9,7 +9,7 @@
 *.dll
 *.so
 *.dylib
-kgw
+kusk
 
 # Test binary, built with `go test -c`
 *.test

@@ -32,11 +32,11 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/ghodss/yaml"
-	"github.com/kubeshop/kusk-gateway/options"
-	"github.com/kubeshop/kusk-gateway/spec"
 	"github.com/spf13/cobra"
 
-	"github.com/kubeshop/kgw/templates"
+	"github.com/kubeshop/kusk-gateway/pkg/options"
+	"github.com/kubeshop/kusk-gateway/pkg/spec"
+	"github.com/kubeshop/kusk/templates"
 )
 
 var (
@@ -72,21 +72,21 @@ var generateCmd = &cobra.Command{
 	Sample usage
 
 	No name specified
-	kgw api generate -i spec.yaml
+	kusk api generate -i spec.yaml
 
-	In the above example, kgw will use the openapi spec info.title to generate a manifest name and leave the existing
+	In the above example, kusk will use the openapi spec info.title to generate a manifest name and leave the existing
 	x-kusk extension settings
 	
 	No namespace specified
-	kgw api generate -i spec.yaml --name httpbin-api --upstream.service httpbin --upstream.port 8080
+	kusk api generate -i spec.yaml --name httpbin-api --upstream.service httpbin --upstream.port 8080
 
 	In the above example, as --namespace isn't defined, it will assume the default namespace.
 
 	Namespace specified
-	kgw api generate -i spec.yaml --name httpbin-api --upstream.service httpbin --upstream.namespace my-namespace --upstream.port 8080
+	kusk api generate -i spec.yaml --name httpbin-api --upstream.service httpbin --upstream.namespace my-namespace --upstream.port 8080
 
 	OpenAPI spec at URL
-	kgw api generate \
+	kusk api generate \
 			-i https://raw.githubusercontent.com/$ORG_OR_USER/$REPO/myspec.yaml \
 			 --name httpbin-api \
 			 --upstream.service httpbin \
@@ -112,7 +112,7 @@ var generateCmd = &cobra.Command{
 			name = strings.ReplaceAll(parsedApiSpec.Info.Title, ".", "-")
 		}
 
-		// override top level upstream service if defined.
+		// override top level upstream service if undefined.
 		if serviceName != "" && serviceNamespace != "" && servicePort != 0 {
 			xKusk := parsedApiSpec.ExtensionProps.Extensions["x-kusk"].(options.Options)
 			xKusk.Upstream = &options.UpstreamOptions{
@@ -158,7 +158,9 @@ func validateExtensionOptions(extension interface{}) error {
 		return err
 	}
 
-	if err := o.FillDefaultsAndValidate(); err != nil {
+	o.FillDefaults()
+
+	if err := o.Validate(); err != nil {
 		return err
 	}
 
