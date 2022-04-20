@@ -1,4 +1,4 @@
-# Kusk Gateway CLI
+# Kusk CLI
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=shields)](http://makeapullrequest.com)
 
