@@ -2,17 +2,20 @@
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=shields)](http://makeapullrequest.com)
 
-A CLI utility helper for creating Kusk Gateway API resources from your OpenAPI specification document.
+Kusk is a CLI tool designed to help you manage common tasks required when
+running Kusk Gateway.
 
- ![image](./img/screenshot.png)
+Currently we support the following commands:
+- `install` - installs Kusk Gateway and all its components with a single command. (Requires a helm installation)
+- `api generate` - for creating Kusk Gateway API resources from your OpenAPI specification document.
 
 ---
 
 # Table of contents
 
 - [Usage](#usage)
-  - [Flags](#flags)
-  - [Example](#example)
+  - [install](#install)
+  - [api generate](#api-generate)
 - [Installation](#installation)
 - [Updating](#updating)
 - [Uninstallation](#uninstallation)
@@ -23,7 +26,34 @@ A CLI utility helper for creating Kusk Gateway API resources from your OpenAPI s
 
 [(Back to top)](#table-of-contents)
 
-## Flags
+## Install
+### Flags
+|         Flag         |                                                     Description                                                     | Required? |
+|:--------------------:|:-------------------------------------------------------------------------------------------------------------------:|:---------:|
+|       `--name`       | the prefix of the name to give to the helm releases for each of the kusk gateway components (default: kusk-gateway) |     ❌     |
+| `--namespace` / `-n` |   the namespace to install kusk gateway into. Will create the namespace if it doesn't exist (default: kusk-system)  |     ❌     |
+|   `--no-dashboard`   |                               when set, will not install the kusk gateway dashboard.                                |     ❌     |
+|      `--no-api`      |                       when set, will not install the kusk gateway api. implies --no-dashboard.                      |     ❌     |
+|  `--no-envoy-fleet`  |                                     when set, will not install any envoy fleets                                     |     ❌     |
+
+### Examples
+```
+  $ kusk install
+
+	Will install kusk-gateway, a public (for your APIS) and private (for the kusk dashboard and api) 
+	envoy-fleet, api, and dashboard in the kusk-system namespace using helm.
+
+	$ kusk install --name=my-release --namespace=my-namespace
+
+	Will create a helm release named with --name in the namespace specified by --namespace.
+
+	$ kusk install --no-dashboard --no-api --no-envoy-fleet
+
+	Will install kusk-gateway, but not the dashboard, api, or envoy-fleet.
+```
+
+## Api generate
+### Flags
 |          Flag          |                                             Description                                             | Required? |
 |:----------------------:|:---------------------------------------------------------------------------------------------------:|:---------:|
 |        `--name`        | the name to give the API resource e.g. --name my-api. Otherwise taken from OpenAPI info title field |     ❌     |
@@ -33,7 +63,7 @@ A CLI utility helper for creating Kusk Gateway API resources from your OpenAPI s
 | `--upstream.namespace` |                           namespace of upstream service (default: default)                          |     ❌     |
 |    `--upstream.port`   |                        port that upstream service is exposed on (default: 80)                       |     ❌     |
 
-## Example
+### Example
 Take a look at the [http-bin example spec](./examples/httpbin-spec.yaml)
 
 ```
