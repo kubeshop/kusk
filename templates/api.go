@@ -25,9 +25,11 @@ THE SOFTWARE.
 package templates
 
 type APITemplateArgs struct {
-	Name      string
-	Namespace string
-	Spec      []string
+	Name                string
+	Namespace           string
+	EnvoyfleetName      string
+	EnvoyfleetNamespace string
+	Spec                []string
 }
 
 var APITemplate = `
@@ -38,6 +40,9 @@ metadata:
   name: {{ .Name }}
   namespace: {{ .Namespace }}
 spec:
+  fleet:
+    name: {{ .EnvoyfleetName }}
+    namespace: {{ .EnvoyfleetNamespace }}
   spec: |
   {{- range $line := .Spec }}
     {{ $line -}}
