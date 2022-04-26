@@ -268,7 +268,7 @@ func init() {
 	generateCmd.MarkFlagRequired("envoyfleet.name")
 
 	generateCmd.Flags().StringVarP(
-		&envoyFleetName,
+		&envoyFleetNamespace,
 		"envoyfleet.namespace",
 		"",
 		"kusk-system",
