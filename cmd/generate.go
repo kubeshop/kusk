@@ -50,6 +50,9 @@ var (
 	serviceName      string
 	serviceNamespace string
 	servicePort      uint32
+
+	envoyFleetName      string
+	envoyFleetNamespace string
 )
 
 // generateCmd represents the generate command
@@ -67,23 +70,42 @@ var generateCmd = &cobra.Command{
 	This is enough to get you started
 
 	If the x-kusk extension is already present, it will override the the upstream service, namespace and port to the flag values passed in respectively
-	and leave the rest of the settings as they are
+	and leave the rest of the settings as they are.
+
+	You must specify the name of the envoyfleet you wish to use to expose your API. This is because Kusk Gateway could be managing more than one.
+	In the future, we will add the notion of a default envoyfleet which kusk gateway will use when none is specified.
+
+	If you do not specify the envoyfleet namespace, it will default to kusk-system.
 
 	Sample usage
 
 	No name specified
-	kusk api generate -i spec.yaml
+	kusk api generate \
+		-i spec.yaml \
+		--envoyfleet.name kusk-gateway-envoy-fleet \
+		--envoyfleet.namespace kusk-system
 
 	In the above example, kusk will use the openapi spec info.title to generate a manifest name and leave the existing
 	x-kusk extension settings
 	
-	No namespace specified
-	kusk api generate -i spec.yaml --name httpbin-api --upstream.service httpbin --upstream.port 8080
+	No api namespace specified
+	kusk api generate \
+		-i spec.yaml \
+		--name httpbin-api \
+		--upstream.service httpbin \
+		--upstream.port 8080 \
+		--envoyfleet.name kusk-gateway-envoy-fleet
 
 	In the above example, as --namespace isn't defined, it will assume the default namespace.
 
 	Namespace specified
-	kusk api generate -i spec.yaml --name httpbin-api --upstream.service httpbin --upstream.namespace my-namespace --upstream.port 8080
+	kusk api generate \
+		-i spec.yaml \
+		--name httpbin-api \
+		--upstream.service httpbin \
+		--upstream.namespace my-namespace \
+		--upstream.port 8080 \
+		--envoyfleet.name kusk-gateway-envoy-fleet
 
 	OpenAPI spec at URL
 	kusk api generate \
@@ -91,7 +113,8 @@ var generateCmd = &cobra.Command{
 			 --name httpbin-api \
 			 --upstream.service httpbin \
 			 --upstream.namespace my-namespace \
-			 --upstream.port 8080
+			 --upstream.port 8080 \
+			 --envoyfleet.name kusk-gateway-envoy-fleet
 	
 	This will fetch the OpenAPI document from the provided URL and generate a Kusk Gateway API resource
 	`,
@@ -137,9 +160,11 @@ var generateCmd = &cobra.Command{
 		}
 
 		if err := apiTemplate.Execute(os.Stdout, templates.APITemplateArgs{
-			Name:      name,
-			Namespace: namespace,
-			Spec:      strings.Split(apiSpec, "\n"),
+			Name:                name,
+			Namespace:           namespace,
+			EnvoyfleetName:      envoyFleetName,
+			EnvoyfleetNamespace: envoyFleetNamespace,
+			Spec:                strings.Split(apiSpec, "\n"),
 		}); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
@@ -232,6 +257,24 @@ func init() {
 		80,
 		"port of upstream service",
 	)
+
+	generateCmd.Flags().StringVarP(
+		&envoyFleetName,
+		"envoyfleet.name",
+		"",
+		"",
+		"name of envoyfleet to use for this API",
+	)
+	generateCmd.MarkFlagRequired("envoyfleet.name")
+
+	generateCmd.Flags().StringVarP(
+		&envoyFleetNamespace,
+		"envoyfleet.namespace",
+		"",
+		"kusk-system",
+		"namespace of envoyfleet to use for this API. Default: kusk-system",
+	)
+
 
 	apiTemplate = template.Must(template.New("api").Parse(templates.APITemplate))
 }
