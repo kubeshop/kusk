@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/kubeshop/kusk-gateway/pkg/analytics"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -39,6 +40,9 @@ var rootCmd = &cobra.Command{
 	Use:   "kusk",
 	Short: "",
 	Long:  ``,
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		analytics.SendAnonymousCMDInfo()
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
