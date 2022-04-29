@@ -63,8 +63,8 @@ if [ "$install_dir" != "" ]; then
         exit 0
 fi
 
-if [ "$(uname)" == "Linux" ]; then
-        echo "On Linux sudo rights are needed to move the binary to /usr/local/bin, please type your password when asked"
+if [[ $EUID -ne 0 ]]; then
+        echo "Sudo rights are needed to move the binary to /usr/local/bin, please type your password when asked"
         _sudo mv kusk /usr/local/bin/kusk
 else
         mv kusk /usr/local/bin/kusk
