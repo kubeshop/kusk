@@ -1,74 +1,78 @@
 #!/usr/bin/env sh
+set -ef
 
-set -e
-
-if [ ! -z "${DEBUG}" ]; 
-then set -x 
+if [ -n "${DEBUG}" ]; then
+  set -x
 fi
 
-_sudo () {
-    [[ $EUID = 0 ]] || set -- command sudo "$@"
-    "$@"
+_sudo() {
+  [ "$(id -u)" -eq 0 ] || set -- command sudo "$@"
+  "$@"
 }
 
 _detect_arch() {
-    case $(uname -m) in
-    amd64|x86_64) echo "x86_64"
+  case $(uname -m) in
+  amd64 | x86_64)
+    echo "x86_64"
     ;;
-    arm64|aarch64) echo "arm64"
+  arm64 | aarch64)
+    echo "arm64"
     ;;
-    i386) echo "i386"
+  i386)
+    echo "i386"
     ;;
-    *) echo "Unsupported processor architecture";
+  *)
+    echo "Unsupported processor architecture"
     return 1
     ;;
-     esac
+  esac
 }
 
-_detect_os(){
-    case $(uname) in
-    Linux) echo "Linux"
+_detect_os() {
+  case $(uname) in
+  Linux)
+    echo "Linux"
     ;;
-    Darwin) echo "macOS"
+  Darwin)
+    echo "macOS"
     ;;
-    Windows) echo "Windows"
+  Windows)
+    echo "Windows"
     ;;
-     esac
+  esac
 }
 
 _download_url() {
-        local arch="$(_detect_arch)"
-        local os="$(_detect_os)"
-        local version=$kusk_VERSION
+  local arch="$(_detect_arch)"
+  local os="$(_detect_os)"
+  local version=$kusk_VERSION
 
-        if [ -z "$kusk_VERSION" ]
-        then
-                version=`curl -s https://api.github.com/repos/kubeshop/kusk/releases/latest 2>/dev/null | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`
-        fi
+  if [ -z "$kusk_VERSION" ]; then
+    version=$(curl -s https://api.github.com/repos/kubeshop/kusk/releases/latest 2>/dev/null | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+  fi
 
-        local trailedVersion=`echo $version | tr -d v`
-        echo "https://github.com/kubeshop/kusk/releases/download/${version}/kusk_${trailedVersion}_${os}_${arch}.tar.gz"
+  local trailedVersion=$(echo $version | tr -d v)
+  echo "https://github.com/kubeshop/kusk/releases/download/${version}/kusk_${trailedVersion}_${os}_${arch}.tar.gz"
 }
 
 echo "Downloading kusk from URL: $(_download_url)"
-curl -sSLf $(_download_url) > kusk.tar.gz
+curl --progress-bar --output kusk.tar.gz -SLf "$(_download_url)"
 tar -xzf kusk.tar.gz kusk
 rm kusk.tar.gz
 
 install_dir=$1
 if [ "$install_dir" != "" ]; then
-        mkdir -p "$install_dir"
-        mv kusk "${install_dir}/kusk"
-        echo "kusk installed in ${install_dir}"
-        exit 0
+  mkdir -p "$install_dir"
+  mv kusk "${install_dir}/kusk"
+  echo "kusk installed in ${install_dir}"
+  exit 0
 fi
 
-if [[ $EUID -ne 0 ]]; then
-        echo "Sudo rights are needed to move the binary to /usr/local/bin, please type your password when asked"
-        _sudo mv kusk /usr/local/bin/kusk
+if [ "$(id -u)" -ne 0 ]; then
+  echo "Sudo rights are needed to move the binary to /usr/local/bin, please type your password when asked"
+  _sudo mv kusk /usr/local/bin/kusk
 else
-        mv kusk /usr/local/bin/kusk
+  mv kusk /usr/local/bin/kusk
 fi
 
 echo "kusk installed in /usr/local/bin/kusk"
-
