@@ -24,3 +24,13 @@ jobs:
 
       - name: Test
         run: go test -v ./...
+
+      - name: test-GoReleaser-build
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          distribution: goreleaser
+          version: v1.8.3
+          args: release --rm-dist --skip-publish --skip-validate
+        env:
+          GITHUB_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
+          TELEMETRY_TOKEN: ${{ secrets.TELEMETRY_TOKEN }}
