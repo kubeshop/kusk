@@ -9,7 +9,7 @@ builds:
       - windows
       - darwin
     ldflags:
-      - -X -ldflags "-X github.com/kubeshop/kusk-gateway/pkg/analytics.TelemetryToken={{.Env.TELEMETRY_TOKEN}}"
+      - -X github.com/kubeshop/kusk-gateway/pkg/analytics.TelemetryToken={{.Env.TELEMETRY_TOKEN}}
 archives:
   - replacements:
       darwin: macOS
