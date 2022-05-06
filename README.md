@@ -235,6 +235,12 @@ git pull && go install
 
 Your contributions are always welcome! Please have a look at [How to contribute](https://github.com/kubeshop/.github/blob/main/CONTRIBUTING.md) first.
 
+### Development
+
+```sh
+make
+```
+
 # License
 
 [The MIT License](https://mit-license.org/).

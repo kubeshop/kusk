@@ -12,33 +12,33 @@ _sudo() {
 
 _detect_arch() {
   case $(uname -m) in
-  amd64 | x86_64)
-    echo "x86_64"
-    ;;
-  arm64 | aarch64)
-    echo "arm64"
-    ;;
-  i386)
-    echo "i386"
-    ;;
-  *)
-    echo "Unsupported processor architecture"
-    return 1
-    ;;
+    amd64 | x86_64)
+      echo "x86_64"
+      ;;
+    arm64 | aarch64)
+      echo "arm64"
+      ;;
+    i386)
+      echo "i386"
+      ;;
+    *)
+      echo "Unsupported processor architecture"
+      return 1
+      ;;
   esac
 }
 
 _detect_os() {
   case $(uname) in
-  Linux)
-    echo "Linux"
-    ;;
-  Darwin)
-    echo "macOS"
-    ;;
-  Windows)
-    echo "Windows"
-    ;;
+    Linux)
+      echo "Linux"
+      ;;
+    Darwin)
+      echo "macOS"
+      ;;
+    Windows)
+      echo "Windows"
+      ;;
   esac
 }
 
@@ -48,7 +48,7 @@ _download_url() {
   local version=$kusk_VERSION
 
   if [ -z "$kusk_VERSION" ]; then
-    version=$(curl -s https://api.github.com/repos/kubeshop/kusk/releases/latest 2>/dev/null | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    version=$(curl -s https://api.github.com/repos/kubeshop/kusk/releases/latest 2> /dev/null | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
   fi
 
   local trailedVersion=$(echo $version | tr -d v)
