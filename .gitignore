@@ -1,4 +1,3 @@
-
 # Created by https://www.toptal.com/developers/gitignore/api/go,goland,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=go,goland,visualstudiocode
 
@@ -17,11 +16,7 @@ kusk
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
-
 ### Go Patch ###
-/vendor/
 /Godeps/
 
 ### Goland ###
