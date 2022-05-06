@@ -275,6 +275,5 @@ func init() {
 		"namespace of envoyfleet to use for this API. Default: kusk-system",
 	)
 
-
 	apiTemplate = template.Must(template.New("api").Parse(templates.APITemplate))
 }
