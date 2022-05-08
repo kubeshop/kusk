@@ -1,7 +1,10 @@
 .DEFAULT_GOAL				:= all
 MAKEFLAGS 					+= --environment-overrides --warn-undefined-variables --print-directory #--no-builtin-rules --no-builtin-variables
+SHELL := /bin/bash
+ifneq ($(shell uname),Darwin)
+	SHELL += -O globstar -O extglob
+endif
 
-SHELL								:= /bin/bash -O globstar -O extglob
 .SHELLFLAGS					:= -eu -o pipefail -c
 
 export TERM					?= xterm-256
