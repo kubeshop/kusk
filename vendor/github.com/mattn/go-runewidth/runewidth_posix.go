@@ -1,4 +1,3 @@
-//go:build !windows && !js
 // +build !windows,!js
 
 package runewidth
