@@ -16,6 +16,7 @@ Currently we support the following commands:
 - [Usage](#usage)
   - [install](#install)
   - [api generate](#api-generate)
+  - [dashboard](#dashboard)
 - [Installation](#installation)
 - [Updating](#updating)
 - [Uninstallation](#uninstallation)
