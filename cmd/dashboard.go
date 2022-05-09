@@ -36,14 +36,35 @@ func init() {
 	}
 
 	dashboardCmd.Flags().StringVarP(&kubeConfig, "kubeconfig", "", kubeConfigDefault, "absolute path to kube config")
-	dashboardCmd.Flags().StringVarP(&dashboardEnvoyFleetNamespace, "envoyfleet.namespace", "", "kusk-system", "kusk gateway dashboard namespace")
-	dashboardCmd.Flags().StringVarP(&dashboardEnvoyFleetName, "envoyfleet.name", "", "kusk-gateway-private-envoy-fleet", "kusk gateway dashboard service name")
+	dashboardCmd.Flags().StringVarP(&dashboardEnvoyFleetNamespace, "envoyfleet.namespace", "", "kusk-system", "kusk gateway dashboard envoy fleet namespace")
+	dashboardCmd.Flags().StringVarP(&dashboardEnvoyFleetName, "envoyfleet.name", "", "kusk-gateway-private-envoy-fleet", "kusk gateway dashboard envoy fleet service name")
 	dashboardCmd.Flags().IntVarP(&dashboardEnvoyFleetExternalPort, "external-port", "", 8080, "external port to access dashboard at")
 }
 
 var dashboardCmd = &cobra.Command{
 	Use:   "dashboard",
 	Short: "Access the kusk dashboard",
+	Long: `Access the kusk dashboard. kusk dashboard will start a port-forward session on port 8080 to the envoyfleet
+serving the dashboard and will open the dashboard in the browser. By default this is kusk-gateway-private-envoy-fleet.kusk-system.
+The flags --envoyfleet.namespace and --envoyfleet.name can be used to change the envoyfleet.
+	`,
+	Example: `
+	$ kusk dashboard
+
+	Opens the kusk gateway dashboard in the browser by exposing the default private envoy fleet on port 8080
+
+	$ kusk dashboard --envoyfleet.namespace=other-namespace --envoyfleet.name=other-envoy-fleet
+
+	Specify other envoyfleet and namespace that is serving the dashboard
+
+	$ kusk dashboard --external-port=9090
+
+	Expose dashboard on port 9090
+
+	$ kusk dashboard --kubeconfig=/path/to/kube/config
+
+	Specify path to kube config. $HOME/.kube/config is used by default.
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		// use the current context in kubeconfig
@@ -67,12 +88,17 @@ var dashboardCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		var chosenPod v1.Pod
+		var chosenPod *v1.Pod
 		for _, pod := range podList.Items {
 			// pick the first pod found to be running
 			if pod.Status.Phase == v1.PodRunning {
-				chosenPod = pod
+				chosenPod = &pod
 			}
+		}
+
+		if chosenPod == nil {
+			fmt.Fprintln(os.Stderr, "no running pods found for envoyfleet: ", dashboardEnvoyFleetName)
+			os.Exit(1)
 		}
 
 		// stopCh controls the port forwarding lifecycle.
