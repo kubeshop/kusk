@@ -22,7 +22,7 @@ type PortForwardRequest struct {
 	// Pod is the selected pod for this port forwarding
 	Pod v1.Pod
 
-	// LocalPort is the local port that will be selected to expose the InternalPort
+	// ExternalPort the local port that will be selected to expose the InternalPort
 	ExternalPort int
 	// InternalPort is the target port for forwarding
 	InternalPort int
