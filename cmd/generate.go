@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright © 2021 Kubeshop
+Copyright © 2022 Kubeshop
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -87,7 +87,7 @@ var generateCmd = &cobra.Command{
 
 	In the above example, kusk will use the openapi spec info.title to generate a manifest name and leave the existing
 	x-kusk extension settings
-	
+
 	No api namespace specified
 	kusk api generate \
 		-i spec.yaml \
@@ -115,7 +115,7 @@ var generateCmd = &cobra.Command{
 			 --upstream.namespace my-namespace \
 			 --upstream.port 8080 \
 			 --envoyfleet.name kusk-gateway-envoy-fleet
-	
+
 	This will fetch the OpenAPI document from the provided URL and generate a Kusk Gateway API resource
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
