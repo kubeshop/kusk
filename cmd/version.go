@@ -37,36 +37,42 @@ import (
 )
 
 func init() {
-	versionCmd := NewVersionCommand(os.Stdout, build.Version, build.Date)
+	versionCmd := NewVersionCommand(os.Stdout, build.Version, build.Date, build.Time, build.Tag)
 
-	formattedVersion := VersionFormat(build.Version, build.Date)
+	formattedVersion := VersionFormat(build.Version, build.Date, build.Time, build.Tag)
 	rootCmd.Version = formattedVersion
 
 	rootCmd.AddCommand(versionCmd)
 }
 
-func NewVersionCommand(writer io.Writer, version string, date string) *cobra.Command {
-	formattedVersion := VersionFormat(version, date)
+func NewVersionCommand(writer io.Writer, version string, date string, time string, tag string) *cobra.Command {
+	formattedVersion := VersionFormat(version, date, time, tag)
 
 	return &cobra.Command{
 		Use:   "version",
 		Short: "version for kusk",
 		// Version: formattedVersion,
 		Run: func(*cobra.Command, []string) {
-			fmt.Fprintf(writer, "%s", formattedVersion)
+			fmt.Fprintf(writer, "%s\n", formattedVersion)
 		},
 	}
 }
 
-func VersionFormat(version string, buildDate string) string {
+func VersionFormat(version string, buildDate string, time string, tag string) string {
 	version = strings.TrimPrefix(version, "v")
 
-	var dateStr string
-	if buildDate != "" {
-		dateStr = fmt.Sprintf(" (%s)", buildDate)
-	}
+	_ = buildDate
+	// var dateStr string
+	// if buildDate != "" {
+	// 	dateStr = fmt.Sprintf(" (%s)", buildDate)
+	// }
 
-	return fmt.Sprintf("github.com/kubeshop/kusk version %s%s\n%s\n", version, dateStr, VersionChangelogURL(version))
+	return fmt.Sprintf(`
+%s
+%s
+%s
+
+%s`, version, tag, time, VersionChangelogURL(version))
 }
 
 func VersionChangelogURL(version string) string {

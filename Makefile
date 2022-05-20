@@ -1,21 +1,22 @@
-.DEFAULT_GOAL				:= all
-MAKEFLAGS 					+= --environment-overrides --warn-undefined-variables --print-directory #--no-builtin-rules --no-builtin-variables
+.DEFAULT_GOAL := all
+MAKEFLAGS += --environment-overrides --warn-undefined-variables #--print-directory --no-builtin-rules --no-builtin-variables
+
 SHELL := /bin/bash
 ifneq ($(shell uname),Darwin)
 	SHELL += -O globstar -O extglob
 endif
 
-.SHELLFLAGS					:= -eu -o pipefail -c
+.SHELLFLAGS := -eu -o pipefail -c
 
-export TERM					?= xterm-256
-export PATH					:= $(shell go env GOPATH)/bin:${PATH}
+export TERM ?= xterm-256
+export PATH := $(shell go env GOPATH)/bin:${PATH}
 
 # Determine if we should use:
 # 1. docker and docker-compose, or
 # 2. podman and podman-compose
-CONTAINER_ENGINE		?=	$(shell docker version >/dev/null 2>&1 && which docker)
+CONTAINER_ENGINE ?= $(shell docker version >/dev/null 2>&1 && which docker)
 ifeq ($(CONTAINER_ENGINE),)
-	CONTAINER_ENGINE	=	$(shell podman version >/dev/null 2>&1 && which podman)
+	CONTAINER_ENGINE = $(shell podman version >/dev/null 2>&1 && which podman)
 endif
 
 .PHONY: all

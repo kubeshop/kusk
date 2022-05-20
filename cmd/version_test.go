@@ -35,12 +35,18 @@ func Test_Version(t *testing.T) {
 	t.Parallel()
 
 	writer := bytes.NewBufferString("")
-	version := t.Name() + "_version"
-	date := t.Name() + "_date"
-	command := NewVersionCommand(writer, version, date)
+	version := "_some-version_"
+	date := "_some-date_"
+	time := "_some-time-2022-05-20T10:55:55Z_"
+	tag := "_some-tag-v2.10.1-19-ge837b7bc_"
+	command := NewVersionCommand(writer, version, date, time, tag)
 	command.Run(nil, []string{})
 
-	expected := `github.com/kubeshop/kusk version Test_Version_version (Test_Version_date)
+	expected := `
+_some-version_
+_some-tag-v2.10.1-19-ge837b7bc_
+_some-time-2022-05-20T10:55:55Z_
+
 https://github.com/kubeshop/kusk/releases/latest
 `
 	actual := writer.String()
