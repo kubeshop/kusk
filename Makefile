@@ -13,6 +13,7 @@ export PATH := $(shell go env GOPATH)/bin:${PATH}
 
 VERSION ?= $(shell git describe --tags)
 
+LD_FLAGS += -w -s
 LD_FLAGS += -X 'github.com/kubeshop/kusk-gateway/pkg/build.Version=${VERSION}'
 LD_FLAGS += -X 'github.com/kubeshop/kusk-gateway/pkg/analytics.KuskGAMeasurementID=${GA_ID}'
 LD_FLAGS += -X 'github.com/kubeshop/kusk-gateway/pkg/analytics.KuskGAApiSecret=${GA_SECRET}'

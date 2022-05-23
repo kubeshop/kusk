@@ -10,9 +10,10 @@ builds:
       - windows
       - darwin
     ldflags:
-      - -X github.com/kubeshop/kusk-gateway/pkg/build.Version={{.Env.VERSION}}
-      - -X github.com/kubeshop/kusk-gateway/pkg/analytics.KuskGAMeasurementID={{.Env.GA_ID}}
-      - -X github.com/kubeshop/kusk-gateway/pkg/analytics.KuskGAApiSecret={{.Env.GA_SECRET}}
+      - -w -s
+      - -X 'github.com/kubeshop/kusk-gateway/pkg/build.Version={{.Env.VERSION}}'
+      - -X 'github.com/kubeshop/kusk-gateway/pkg/analytics.KuskGAMeasurementID={{.Env.GA_ID}}'
+      - -X 'github.com/kubeshop/kusk-gateway/pkg/analytics.KuskGAApiSecret={{.Env.GA_SECRET}}'
 archives:
   - replacements:
       darwin: macOS
