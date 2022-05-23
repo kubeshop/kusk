@@ -25,26 +25,21 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"fmt"
-	"os"
+	"bytes"
+	"testing"
 
-	"github.com/spf13/cobra"
+	"github.com/stretchr/testify/assert"
 )
 
-// apiCmd represents the api command
-var apiCmd = &cobra.Command{
-	Use:   "api",
-	Short: "parent command for api related functions",
-	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		// Currently api only has one sub command
-		fmt.Fprint(os.Stderr, "The api command cannot be run directly. Please run: kusk api generate\n")
+func Test_NewVersionCommand(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
 
-		// In future, remove this when new sub commands are added and simply call cmd.Help()
-		generateCmd.Help()
-	},
-}
+	writer := bytes.NewBufferString("")
+	version := "_some-version_"
+	command := NewVersionCommand(writer, version)
+	command.Run(nil, []string{})
 
-func init() {
-	rootCmd.AddCommand(apiCmd)
+	actual := writer.String()
+	assert.Contains(actual, version)
 }

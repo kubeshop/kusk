@@ -26,25 +26,53 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"os"
+	"regexp"
+	"strings"
 
 	"github.com/spf13/cobra"
+
+	"github.com/kubeshop/kusk-gateway/pkg/build"
 )
 
-// apiCmd represents the api command
-var apiCmd = &cobra.Command{
-	Use:   "api",
-	Short: "parent command for api related functions",
-	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		// Currently api only has one sub command
-		fmt.Fprint(os.Stderr, "The api command cannot be run directly. Please run: kusk api generate\n")
+func init() {
+	versionCmd := NewVersionCommand(os.Stdout, build.Version)
 
-		// In future, remove this when new sub commands are added and simply call cmd.Help()
-		generateCmd.Help()
-	},
+	versionTemplate := "{{printf \"%s\" .Version}}\n"
+	rootCmd.SetVersionTemplate(versionTemplate)
+
+	formattedVersion := VersionFormat(build.Version)
+	rootCmd.Version = formattedVersion
+
+	rootCmd.AddCommand(versionCmd)
 }
 
-func init() {
-	rootCmd.AddCommand(apiCmd)
+func NewVersionCommand(writer io.Writer, version string) *cobra.Command {
+	formattedVersion := VersionFormat(version)
+
+	return &cobra.Command{
+		Use:   "version",
+		Short: "version for kusk",
+		Run: func(*cobra.Command, []string) {
+			fmt.Fprintf(writer, "%s\n", formattedVersion)
+		},
+	}
+}
+
+func VersionFormat(version string) string {
+	version = strings.TrimPrefix(version, "v")
+
+	return fmt.Sprintf("kusk version %s\n%s", version, changelogURL(version))
+}
+
+func changelogURL(version string) string {
+	path := "https://github.com/kubeshop/kusk"
+	r := regexp.MustCompile(`^v?\d+\.\d+\.\d+(-[\w.]+)?$`)
+	if !r.MatchString(version) {
+		return fmt.Sprintf("%s/releases/latest", path)
+	}
+
+	url := fmt.Sprintf("%s/releases/tag/v%s", path, strings.TrimPrefix(version, "v"))
+	return url
 }

@@ -122,3 +122,13 @@ fabric.properties
 !.vscode/*.code-snippets
 
 # End of https://www.toptal.com/developers/gitignore/api/go,goland,visualstudiocode
+
+# Ignore temp (dev) folders #
+.tmp/
+/.tmp/
+#############################
+
+# Ignore .env files #
+.env
+/.env
+#####################
