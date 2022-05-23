@@ -127,3 +127,8 @@ fabric.properties
 .tmp/
 /.tmp/
 #############################
+
+# Ignore .env files #
+.env
+/.env
+#####################

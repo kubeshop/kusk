@@ -31,27 +31,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_Version(t *testing.T) {
+func Test_VersionCommand(t *testing.T) {
 	t.Parallel()
+	assert := assert.New(t)
 
 	writer := bytes.NewBufferString("")
 	version := "_some-version_"
-	date := "_some-date_"
-	time := "_some-time-2022-05-20T10:55:55Z_"
-	tag := "_some-tag-v2.10.1-19-ge837b7bc_"
-	command := NewVersionCommand(writer, version, date, time, tag)
+	command := NewVersionCommand(writer, version)
 	command.Run(nil, []string{})
 
-	expected := `
-_some-version_
-_some-tag-v2.10.1-19-ge837b7bc_
-_some-time-2022-05-20T10:55:55Z_
-
+	expected := `kusk version _some-version_
 https://github.com/kubeshop/kusk/releases/latest
 `
 	actual := writer.String()
-
-	assert := assert.New(t)
 
 	assert.Equal(expected, actual)
 }

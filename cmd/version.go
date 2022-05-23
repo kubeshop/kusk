@@ -33,49 +33,40 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/kubeshop/kusk/internal/build"
+	"github.com/kubeshop/kusk-gateway/pkg/build"
 )
 
 func init() {
-	versionCmd := NewVersionCommand(os.Stdout, build.Version, build.Date, build.Time, build.Tag)
+	versionCmd := NewVersionCommand(os.Stdout, build.Version)
 
-	formattedVersion := VersionFormat(build.Version, build.Date, build.Time, build.Tag)
+	versionTemplate := "{{printf \"%s\" .Version}}\n"
+	rootCmd.SetVersionTemplate(versionTemplate)
+
+	formattedVersion := VersionFormat(build.Version)
 	rootCmd.Version = formattedVersion
 
 	rootCmd.AddCommand(versionCmd)
 }
 
-func NewVersionCommand(writer io.Writer, version string, date string, time string, tag string) *cobra.Command {
-	formattedVersion := VersionFormat(version, date, time, tag)
+func NewVersionCommand(writer io.Writer, version string) *cobra.Command {
+	formattedVersion := VersionFormat(version)
 
 	return &cobra.Command{
 		Use:   "version",
 		Short: "version for kusk",
-		// Version: formattedVersion,
 		Run: func(*cobra.Command, []string) {
 			fmt.Fprintf(writer, "%s\n", formattedVersion)
 		},
 	}
 }
 
-func VersionFormat(version string, buildDate string, time string, tag string) string {
+func VersionFormat(version string) string {
 	version = strings.TrimPrefix(version, "v")
 
-	_ = buildDate
-	// var dateStr string
-	// if buildDate != "" {
-	// 	dateStr = fmt.Sprintf(" (%s)", buildDate)
-	// }
-
-	return fmt.Sprintf(`
-%s
-%s
-%s
-
-%s`, version, tag, time, VersionChangelogURL(version))
+	return fmt.Sprintf("kusk version %s\n%s", version, changelogURL(version))
 }
 
-func VersionChangelogURL(version string) string {
+func changelogURL(version string) string {
 	path := "https://github.com/kubeshop/kusk"
 	r := regexp.MustCompile(`^v?\d+\.\d+\.\d+(-[\w.]+)?$`)
 	if !r.MatchString(version) {

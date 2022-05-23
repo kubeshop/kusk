@@ -1,5 +1,4 @@
 name: Go
-
 on:
   push:
     branches: [main]
@@ -7,30 +6,19 @@ on:
       - "docs/**"
   pull_request:
     branches: [main]
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.17
-
       - name: Build
         run: go build -v ./...
-
       - name: Test
         run: go test -v ./...
-
-      - name: test-GoReleaser-build
-        uses: goreleaser/goreleaser-action@v2
-        with:
-          distribution: goreleaser
-          version: v1.6.3
-          args: release --rm-dist --skip-publish --skip-validate
-        env:
-          GITHUB_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
-          TELEMETRY_TOKEN: ${{ secrets.TELEMETRY_TOKEN }}

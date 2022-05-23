@@ -11,6 +11,12 @@ endif
 export TERM ?= xterm-256
 export PATH := $(shell go env GOPATH)/bin:${PATH}
 
+VERSION ?= $(shell git describe --tags)
+
+LD_FLAGS += -X 'github.com/kubeshop/kusk-gateway/pkg/build.Version=${VERSION}'
+LD_FLAGS += -X 'github.com/kubeshop/kusk-gateway/pkg/analytics.KuskGAMeasurementID=${GA_ID}'
+LD_FLAGS += -X 'github.com/kubeshop/kusk-gateway/pkg/analytics.KuskGAApiSecret=${GA_SECRET}'
+
 # Determine if we should use:
 # 1. docker and docker-compose, or
 # 2. podman and podman-compose
@@ -49,10 +55,11 @@ lint:
 test:
 	go test -count=1 -v -race ./...
 
-.PHONY: build-go
-build-go:
-	go build -v ./...
-
 .PHONY: build
-build: build-go
-	TELEMETRY_TOKEN="<STUB_TELEMETRY_TOKEN>" goreleaser release --rm-dist --skip-publish --skip-validate
+build:
+	go build -v -o ./kusk -ldflags="${LD_FLAGS}" ./main.go
+
+# `build-goreleaser` is just for local testing.
+.PHONY: build-goreleaser
+build-goreleaser:
+	VERSION="${VERSION}" GA_ID="${GA_ID}" GA_SECRET="${GA_SECRET}" goreleaser release --rm-dist --skip-publish --skip-validate
