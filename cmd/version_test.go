@@ -31,7 +31,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_VersionCommand(t *testing.T) {
+func Test_NewVersionCommand(t *testing.T) {
 	t.Parallel()
 	assert := assert.New(t)
 
@@ -40,10 +40,6 @@ func Test_VersionCommand(t *testing.T) {
 	command := NewVersionCommand(writer, version)
 	command.Run(nil, []string{})
 
-	expected := `kusk version _some-version_
-https://github.com/kubeshop/kusk/releases/latest
-`
 	actual := writer.String()
-
-	assert.Equal(expected, actual)
+	assert.Contains(actual, version)
 }
