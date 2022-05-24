@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright © 2021 Kubeshop
+Copyright © 2022 Kubeshop
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -28,9 +28,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kubeshop/kusk-gateway/pkg/analytics"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/kubeshop/kusk-gateway/pkg/analytics"
 )
 
 var cfgFile string
