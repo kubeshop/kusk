@@ -31,9 +31,9 @@ all: install-tools pre-commit
 
 .PHONY: install-tools
 install-tools:
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.44.2
-	go install github.com/goreleaser/goreleaser@v1.6.3
-	go install mvdan.cc/sh/v3/cmd/shfmt@v3.4.0
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.46.2
+	go install github.com/goreleaser/goreleaser@v1.9.1
+	go install mvdan.cc/sh/v3/cmd/shfmt@v3.5.0
 
 .PHONY: pre-commit
 pre-commit: format lint test build

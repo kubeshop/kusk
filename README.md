@@ -179,27 +179,29 @@ The flags --envoyfleet.namespace and --envoyfleet.name can be used to change the
 |     `--external-port`    |                     external port to access dashboard at. (default: 8080)                    |     ❌     |
 
 ### Examples
-```
+
+```sh
 $ kusk dashboard
 ```
 
 Opens the kusk gateway dashboard in the browser by exposing the default private envoy fleet on port 8080
 
-```
+```sh
 $ kusk dashboard --envoyfleet.namespace=other-namespace --envoyfleet.name=other-envoy-fleet
 ```
 
 Specify other envoyfleet and namespace that is serving the dashboard
 
-```
+```sh
 $ kusk dashboard --external-port=9090
 ```
 
 Expose dashboard on port 9090
 
-```
+```sh
 $ kusk dashboard --kubeconfig=/path/to/kube/config
 ```
+
 Specify path to kube config. $HOME/.kube/config is used by default.
 
 # Installation
@@ -258,7 +260,7 @@ brew upgrade kubeshop/kusk/kusk
 
 ## Latest release on Github
 
-```
+```sh
 go install github.com/kubeshop/kusk@latest
 ```
 
@@ -278,6 +280,7 @@ Your contributions are always welcome! Please have a look at [How to contribute]
 
 ```sh
 make
+./kusk --help
 ```
 
 # License
