@@ -25,6 +25,7 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -84,18 +85,31 @@ var installCmd = &cobra.Command{
 		ui.ExitOnError("updating helm repositories", err)
 		ui.Info(ui.Green("done"))
 
-		ui.Info("installing Kusk Gateway")
-		err = installKuskGateway(helmPath, releaseName, releaseNamespace)
-		ui.ExitOnError("Installing kusk gateway", err)
-		ui.Info(ui.Green("done"))
+		releases, err := listReleases(helmPath, releaseName, releaseNamespace)
+		ui.ExitOnError("listing existing releases", err)
 
-		if !noEnvoyFleet {
-			ui.Info("installing Envoy Fleet")
-			err = installPublicEnvoyFleet(helmPath, releaseName, releaseNamespace)
-			ui.ExitOnError("Installing envoy fleet", err)
+		if _, kuskGatewayInstalled := releases[releaseName]; !kuskGatewayInstalled {
+			ui.Info("installing Kusk Gateway")
+			err = installKuskGateway(helmPath, releaseName, releaseNamespace)
+			ui.ExitOnError("Installing kusk gateway", err)
 			ui.Info(ui.Green("done"))
 		} else {
-			ui.Info(ui.LightYellow("--no-envoy-fleet set - skipping envoy fleet installation"))
+			ui.Info("kusk gateway already installed, skipping. To upgrade to a new version run kusk upgrade")
+		}
+
+		envoyFleetName := fmt.Sprintf("%s-envoy-fleet", releaseName)
+
+		if _, publicEnvoyFleetInstalled := releases[envoyFleetName]; !publicEnvoyFleetInstalled {
+			if !noEnvoyFleet {
+				ui.Info("installing Envoy Fleet")
+				err = installPublicEnvoyFleet(helmPath, releaseName, releaseNamespace)
+				ui.ExitOnError("Installing envoy fleet", err)
+				ui.Info(ui.Green("done"))
+			} else {
+				ui.Info(ui.LightYellow("--no-envoy-fleet set - skipping envoy fleet installation"))
+			}
+		} else {
+			ui.Info("envoy fleet already installed, skipping. To upgrade to a new version run kusk upgrade")
 		}
 
 		if noApi {
@@ -103,30 +117,43 @@ var installCmd = &cobra.Command{
 			return
 		}
 
-		ui.Info("installing Kusk API")
-		envoyFleetName := fmt.Sprintf("%s-envoy-fleet", releaseName)
 		if !noEnvoyFleet {
 			envoyFleetName = fmt.Sprintf("%s-private-envoy-fleet", releaseName)
-			err = installPrivateEnvoyFleet(helmPath, fmt.Sprintf("%s-private", releaseName), releaseNamespace)
-			ui.ExitOnError("Installing envoy fleet", err)
+
+			if _, privateEnvoyFleetInstalled := releases[envoyFleetName]; !privateEnvoyFleetInstalled {
+				err = installPrivateEnvoyFleet(helmPath, fmt.Sprintf("%s-private", releaseName), releaseNamespace)
+				ui.ExitOnError("Installing envoy fleet", err)
+			} else {
+				ui.Info("private envoy fleet already installed, skipping. To upgrade to a new version run kusk upgrade")
+			}
 		}
 
-		err = installApi(helmPath, releaseName, releaseNamespace, envoyFleetName)
-		ui.ExitOnError("Installing api", err)
-		ui.Info(ui.Green("done"))
+		apiReleaseName := fmt.Sprintf("%s-api", releaseName)
+		if _, ok := releases[apiReleaseName]; !ok {
+			ui.Info("installing Kusk API")
+			err = installApi(helmPath, apiReleaseName, releaseNamespace, envoyFleetName)
+			ui.ExitOnError("Installing api", err)
+			ui.Info(ui.Green("done"))
+		} else {
+			ui.Info("api already installed, skipping. To upgrade to a new version run kusk upgrade")
+		}
 
 		if noDashboard {
 			ui.Info(ui.LightYellow("--no-dashboard set - skipping dashboard installation"))
-			printPortForwardInstructions("API", releaseNamespace, envoyFleetName)
+			printPortForwardInstructions("api", releaseNamespace, envoyFleetName)
 			return
 		}
 
-		ui.Info("installing Kusk Dashboard")
-		err = installDashboard(helmPath, releaseName, releaseNamespace, envoyFleetName)
-		ui.ExitOnError("Installing dashboard", err)
+		dashboardReleaseName := fmt.Sprintf("%s-dashboard", releaseName)
+		if _, ok := releases[dashboardReleaseName]; !ok {
+			ui.Info("installing Kusk Dashboard")
+			err = installDashboard(helmPath, dashboardReleaseName, releaseNamespace, envoyFleetName)
+			ui.ExitOnError("Installing dashboard", err)
 
-		ui.Info(ui.Green("done"))
-
+			ui.Info(ui.Green("done"))
+		} else {
+			ui.Info("dashboard already installed, skipping. To upgrade to a new version run kusk upgrade")
+		}
 		printPortForwardInstructions("dashboard", releaseNamespace, envoyFleetName)
 	},
 }
@@ -154,6 +181,38 @@ func addKubeshopHelmRepo(helmPath string) error {
 func updateHelmRepos(helmPath string) error {
 	_, err := process.Execute(helmPath, "repo", "update")
 	return err
+}
+
+func listReleases(helmPath, releaseName, releaseNamespace string) (map[string]string, error) {
+	command := []string{
+		"ls",
+		"-n", releaseNamespace,
+		"-o", "json",
+	}
+
+	out, err := process.Execute(helmPath, command...)
+	if err != nil {
+		return nil, err
+	}
+
+	var releases []struct {
+		Name  string `json:"name"`
+		Chart string `json:"chart"`
+	}
+
+	if err := json.Unmarshal(out, &releases); err != nil {
+		return nil, err
+	}
+
+	releaseMap := make(map[string]string)
+
+	for _, release := range releases {
+		if strings.HasPrefix(release.Name, releaseName) {
+			releaseMap[release.Name] = release.Chart
+		}
+	}
+
+	return releaseMap, nil
 }
 
 func installKuskGateway(helmPath, releaseName, releaseNamespace string) error {
@@ -188,7 +247,6 @@ func installPrivateEnvoyFleet(helmPath, releaseName, releaseNamespace string) er
 }
 
 func installEnvoyFleet(helmPath, releaseName, releaseNamespace, serviceType string) error {
-	envoyFleetName := fmt.Sprintf("%s-envoy-fleet", releaseName)
 	command := []string{
 		"upgrade",
 		"--install",
@@ -220,7 +278,7 @@ func installApi(helmPath, releaseName, releaseNamespace, envoyFleetName string) 
 		"--create-namespace",
 		"--namespace",
 		releaseNamespace,
-		"--set", fmt.Sprintf("fullnameOverride=%s-api", releaseName),
+		"--set", fmt.Sprintf("fullnameOverride=%s", releaseName),
 		"--set", fmt.Sprintf("envoyfleet.name=%s", envoyFleetName),
 		"--set", fmt.Sprintf("envoyfleet.namespace=%s", releaseNamespace),
 		fmt.Sprintf("%s-api", releaseName),
@@ -245,7 +303,7 @@ func installDashboard(helmPath, releaseName, releaseNamespace, envoyFleetName st
 		"--create-namespace",
 		"--namespace",
 		releaseNamespace,
-		"--set", fmt.Sprintf("fullnameOverride=%s-dashboard", releaseName),
+		"--set", fmt.Sprintf("fullnameOverride=%s", releaseName),
 		"--set", fmt.Sprintf("envoyfleet.name=%s", envoyFleetName),
 		"--set", fmt.Sprintf("envoyfleet.namespace=%s", releaseNamespace),
 		fmt.Sprintf("%s-dashboard", releaseName),
