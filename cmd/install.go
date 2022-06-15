@@ -102,7 +102,7 @@ var installCmd = &cobra.Command{
 		if _, publicEnvoyFleetInstalled := releases[envoyFleetName]; !publicEnvoyFleetInstalled {
 			if !noEnvoyFleet {
 				ui.Info("installing Envoy Fleet")
-				err = installPublicEnvoyFleet(helmPath, releaseName, releaseNamespace)
+				err = installPublicEnvoyFleet(helmPath, envoyFleetName, releaseNamespace)
 				ui.ExitOnError("Installing envoy fleet", err)
 				ui.Info(ui.Green("done"))
 			} else {
@@ -129,7 +129,7 @@ var installCmd = &cobra.Command{
 		}
 
 		apiReleaseName := fmt.Sprintf("%s-api", releaseName)
-		if _, ok := releases[apiReleaseName]; !ok {
+		if _, apiInstalled := releases[apiReleaseName]; !apiInstalled {
 			ui.Info("installing Kusk API")
 			err = installApi(helmPath, apiReleaseName, releaseNamespace, envoyFleetName)
 			ui.ExitOnError("Installing api", err)
@@ -254,9 +254,9 @@ func installEnvoyFleet(helmPath, releaseName, releaseNamespace, serviceType stri
 		"--create-namespace",
 		"--namespace",
 		releaseNamespace,
-		"--set", fmt.Sprintf("fullnameOverride=%s", envoyFleetName),
+		"--set", fmt.Sprintf("fullnameOverride=%s", releaseName),
 		"--set", fmt.Sprintf("service.type=%s", serviceType),
-		envoyFleetName,
+		releaseName,
 		"kubeshop/kusk-gateway-envoyfleet",
 	}
 
@@ -281,7 +281,7 @@ func installApi(helmPath, releaseName, releaseNamespace, envoyFleetName string) 
 		"--set", fmt.Sprintf("fullnameOverride=%s", releaseName),
 		"--set", fmt.Sprintf("envoyfleet.name=%s", envoyFleetName),
 		"--set", fmt.Sprintf("envoyfleet.namespace=%s", releaseNamespace),
-		fmt.Sprintf("%s-api", releaseName),
+		releaseName,
 		"kubeshop/kusk-gateway-api",
 	}
 
@@ -306,7 +306,7 @@ func installDashboard(helmPath, releaseName, releaseNamespace, envoyFleetName st
 		"--set", fmt.Sprintf("fullnameOverride=%s", releaseName),
 		"--set", fmt.Sprintf("envoyfleet.name=%s", envoyFleetName),
 		"--set", fmt.Sprintf("envoyfleet.namespace=%s", releaseNamespace),
-		fmt.Sprintf("%s-dashboard", releaseName),
+		releaseName,
 		"kubeshop/kusk-gateway-dashboard",
 	}
 
