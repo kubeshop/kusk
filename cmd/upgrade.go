@@ -25,7 +25,6 @@ import (
 
 var installOnUpgrade bool
 
-// upgradeCmd represents the upgrade command
 var upgradeCmd = &cobra.Command{
 	Use:   "upgrade",
 	Short: "Upgrade kusk-gateway, envoy-fleet, api, and dashboard in a single command",
