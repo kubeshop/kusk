@@ -12,8 +12,7 @@ builds:
     ldflags:
       - -w -s
       - -X 'github.com/kubeshop/kusk-gateway/pkg/build.Version={{.Env.VERSION}}'
-      - -X 'github.com/kubeshop/kusk-gateway/pkg/analytics.KuskGAMeasurementID={{.Env.GA_ID}}'
-      - -X 'github.com/kubeshop/kusk-gateway/pkg/analytics.KuskGAApiSecret={{.Env.GA_SECRET}}'
+      - -X github.com/kubeshop/kusk-gateway/pkg/analytics.TelemetryToken={{.Env.TELEMETRY_TOKEN}}
 archives:
   - replacements:
       darwin: macOS
