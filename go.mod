@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/getkin/kin-openapi v0.94.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/kubeshop/kusk-gateway v1.0.2-0.20220621122328-bab3c9b60cd1
+	github.com/kubeshop/kusk-gateway v1.1.0-rc1
 	github.com/kubeshop/testkube v1.0.7
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.11.0
