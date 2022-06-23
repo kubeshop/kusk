@@ -27,6 +27,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -224,8 +225,17 @@ func installKuskGateway(helmPath, releaseName, releaseNamespace string) error {
 		"--namespace",
 		releaseNamespace,
 		"--set", fmt.Sprintf("fullnameOverride=%s", releaseName),
+		"--set", os.Getenv("ANALYTICS_ENABLED"),
 		releaseName,
 		"kubeshop/kusk-gateway",
+	}
+
+	if enabled, ok := os.LookupEnv("ANALYTICS_ENABLED"); ok && enabled == "false" {
+		command = append(command, "")
+		copy(command[7:], command[6:])
+		command[6] = "--set"
+		copy(command[8:], command[7:])
+		command[7] = fmt.Sprintf("--set analytics.enabled=%s", enabled)
 	}
 
 	out, err := process.Execute(helmPath, command...)
