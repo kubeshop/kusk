@@ -235,7 +235,7 @@ func installKuskGateway(helmPath, releaseName, releaseNamespace string) error {
 		copy(command[7:], command[6:])
 		command[6] = "--set"
 		copy(command[8:], command[7:])
-		command[7] = fmt.Sprintf("--set analytics.enabled=%s", enabled)
+		command[7] = fmt.Sprintf("analytics.enabled=%s", enabled)
 	}
 
 	out, err := process.Execute(helmPath, command...)
