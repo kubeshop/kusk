@@ -225,7 +225,6 @@ func installKuskGateway(helmPath, releaseName, releaseNamespace string) error {
 		"--namespace",
 		releaseNamespace,
 		"--set", fmt.Sprintf("fullnameOverride=%s", releaseName),
-		"--set", os.Getenv("ANALYTICS_ENABLED"),
 		releaseName,
 		"kubeshop/kusk-gateway",
 	}
