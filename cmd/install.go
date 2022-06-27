@@ -27,6 +27,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -216,6 +217,11 @@ func listReleases(helmPath, releaseName, releaseNamespace string) (map[string]st
 }
 
 func installKuskGateway(helmPath, releaseName, releaseNamespace string) error {
+	analyticsEnabled := "true"
+	if enabled, ok := os.LookupEnv("ANALYTICS_ENABLED"); ok {
+		analyticsEnabled = enabled
+	}
+
 	command := []string{
 		"upgrade",
 		"--install",
@@ -224,6 +230,7 @@ func installKuskGateway(helmPath, releaseName, releaseNamespace string) error {
 		"--namespace",
 		releaseNamespace,
 		"--set", fmt.Sprintf("fullnameOverride=%s", releaseName),
+		"--set", fmt.Sprintf("analytics.enabled=%s", analyticsEnabled),
 		releaseName,
 		"kubeshop/kusk-gateway",
 	}
