@@ -29,12 +29,12 @@ Currently we support the following commands:
 
 ### Flags
 
-|         Flag         |                                                     Description                                                     | Required?  |
-|:--------------------:|:-------------------------------------------------------------------------------------------------------------------:|:----------:|
+|         Flag         |                                                     Description                                                     | Required? |
+| :------------------: | :-----------------------------------------------------------------------------------------------------------------: | :-------: |
 |       `--name`       | the prefix of the name to give to the helm releases for each of the kusk gateway components (default: kusk-gateway) |     ❌     |
-| `--namespace` / `-n` |   the namespace to install kusk gateway into. Will create the namespace if it doesn't exist (default: kusk-system)  |     ❌     |
+| `--namespace` / `-n` |  the namespace to install kusk gateway into. Will create the namespace if it doesn't exist (default: kusk-system)   |     ❌     |
 |   `--no-dashboard`   |                               when set, will not install the kusk gateway dashboard.                                |     ❌     |
-|      `--no-api`      |                       when set, will not install the kusk gateway api. implies --no-dashboard.                      |     ❌     |
+|      `--no-api`      |                      when set, will not install the kusk gateway api. implies --no-dashboard.                       |     ❌     |
 |  `--no-envoy-fleet`  |                                     when set, will not install any envoy fleets                                     |     ❌     |
 
 ### Examples
@@ -129,14 +129,14 @@ This will fetch the OpenAPI document from the provided URL and generate a Kusk G
 ### Flags
 
 |          Flag          |                                             Description                                             | Required? |
-|:----------------------:|:---------------------------------------------------------------------------------------------------:|:---------:|
+| :--------------------: | :-------------------------------------------------------------------------------------------------: | :-------: |
 |        `--name`        | the name to give the API resource e.g. --name my-api. Otherwise taken from OpenAPI info title field |     ❌     |
 |  `--namespace` / `-n`  | the namespace of the API resource e.g. --namespace my-namespace, -n my-namespace (default: default) |     ❌     |
-|      `--in` / `-i`     |       file path or URL to OpenAPI spec file to generate mappings from. e.g. --in apispec.yaml       |     ✅     |
+|     `--in` / `-i`      |       file path or URL to OpenAPI spec file to generate mappings from. e.g. --in apispec.yaml       |     ✅     |
 |  `--upstream.service`  |                                 name of upstream Kubernetes service                                 |     ❌     |
-| `--upstream.namespace` |                           namespace of upstream service (default: default)                          |     ❌     |
-|    `--upstream.port`   |                        port that upstream service is exposed on (default: 80)                       |     ❌     |
-|   `--envoyfleet.name`  |                                name of envoyfleet to use for this API                               |     ✅     |
+| `--upstream.namespace` |                          namespace of upstream service (default: default)                           |     ❌     |
+|   `--upstream.port`    |                       port that upstream service is exposed on (default: 80)                        |     ❌     |
+|  `--envoyfleet.name`   |                               name of envoyfleet to use for this API                                |     ✅     |
 | `envoyfleet.namespace` |                  namespace of envoyfleet to use for this API. Default: kusk-system                  |     ❌     |
 
 ### Example
@@ -171,12 +171,12 @@ serving the dashboard and will open the dashboard in the browser. By default thi
 The flags --envoyfleet.namespace and --envoyfleet.name can be used to change the envoyfleet.
 
 ### Flags
-|           Flag           |                                          Description                                         | Required? |
-|:------------------------:|:--------------------------------------------------------------------------------------------:|:---------:|
+|           Flag           |                                         Description                                          | Required? |
+| :----------------------: | :------------------------------------------------------------------------------------------: | :-------: |
 |      `--kubeconfig`      |                                 absolute path to kube config                                 |     ❌     |
-|    `--envoyfleet.name`   | kusk gateway dashboard envoy fleet service name. (default: kusk-gateway-private-envoy-fleet) |     ❌     |
+|   `--envoyfleet.name`    | kusk gateway dashboard envoy fleet service name. (default: kusk-gateway-private-envoy-fleet) |     ❌     |
 | `--envoyfleet.namespace` |         kusk gateway dashboard envoy fleet service namespace. (default: kusk-system)         |     ❌     |
-|     `--external-port`    |                     external port to access dashboard at. (default: 8080)                    |     ❌     |
+|    `--external-port`     |                    external port to access dashboard at. (default: 8080)                     |     ❌     |
 
 ### Examples
 
@@ -272,6 +272,9 @@ Inside of the kusk repository directory
 git pull && go install
 ```
 
+# CLI Reference 
+
+For detailed command line reference visit [docs](docs/kusk.md)
 # Contributing
 
 Your contributions are always welcome! Please have a look at [How to contribute](https://github.com/kubeshop/.github/blob/main/CONTRIBUTING.md) first.
