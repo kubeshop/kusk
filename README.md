@@ -1,6 +1,13 @@
 # Kusk CLI
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=shields)](http://makeapullrequest.com)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/kubeshop/kusk)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/kubeshop/kusk)
+![GitHub Release Date](https://img.shields.io/github/release-date/kubeshop/kusk)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/kubeshop/kusk/Go?label=Go)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/kubeshop/kusk/goreleaser?label=release)
+
+----
 
 Kusk is a CLI tool designed to help you manage common tasks required when running Kusk Gateway.
 

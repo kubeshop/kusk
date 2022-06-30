@@ -15,8 +15,7 @@ VERSION ?= $(shell git describe --tags)
 
 LD_FLAGS += -w -s
 LD_FLAGS += -X 'github.com/kubeshop/kusk-gateway/pkg/build.Version=${VERSION}'
-LD_FLAGS += -X 'github.com/kubeshop/kusk-gateway/pkg/analytics.KuskGAMeasurementID=${GA_ID}'
-LD_FLAGS += -X 'github.com/kubeshop/kusk-gateway/pkg/analytics.KuskGAApiSecret=${GA_SECRET}'
+LD_FLAGS += -X 'github.com/kubeshop/kusk-gateway/pkg/analytics.TelemetryToken=$(TELEMETRY_TOKEN)'
 
 # Determine if we should use:
 # 1. docker and docker-compose, or
