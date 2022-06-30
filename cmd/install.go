@@ -122,7 +122,7 @@ var installCmd = &cobra.Command{
 			envoyFleetName = fmt.Sprintf("%s-private-envoy-fleet", releaseName)
 
 			if _, privateEnvoyFleetInstalled := releases[envoyFleetName]; !privateEnvoyFleetInstalled {
-				err = installPrivateEnvoyFleet(helmPath, fmt.Sprintf("%s-private", releaseName), releaseNamespace)
+				err = installPrivateEnvoyFleet(helmPath, envoyFleetName, releaseNamespace)
 				ui.ExitOnError("Installing envoy fleet", err)
 			} else {
 				ui.Info("private envoy fleet already installed, skipping. To upgrade to a new version run kusk upgrade")
