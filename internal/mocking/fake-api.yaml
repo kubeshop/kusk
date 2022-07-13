@@ -1,0 +1,64 @@
+openapi: 3.0.0
+info:
+  title: todo-backend-api
+  version: 0.0.2
+x-kusk:
+  cors:
+    origins:
+      - '*'
+    methods:
+      - POST
+      - GET
+    headers:
+      - Content-Type
+    credentials: true
+    max_age: 86200
+  upstream:
+    service:
+      namespace: default
+      name: todo-backend
+      port: 3000
+  path:
+    prefix: /
+paths:
+  /todos:
+    x-kusk:
+      mocking:
+        enabled: true
+    get:
+      responses:
+        '200':
+          description: 'ToDos'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    description: Description of what to do
+                  completed:
+                    type: boolean
+                  order:
+                    type: integer
+                    format: int32
+                  url:
+                    type: string
+                    format: uri
+                required:
+                  - title
+                  - completed
+                  - order
+                  - url
+            application/xml:
+              example:
+                title: "Mocked XML title"
+                completed: true
+                order: 13
+                url: "http://mockedURL.com"
+            text/plain:
+              example: |
+                title: "Mocked Text title"
+                completed: true
+                order: 13
+                url: "http://mockedURL.com"
