@@ -34,6 +34,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"path/filepath"
 	"strconv"
 	"syscall"
 
@@ -52,8 +53,58 @@ import (
 // mockCmd represents the mock command
 var mockCmd = &cobra.Command{
 	Use:   "mock",
-	Short: "",
-	Long:  ``,
+	Short: "spin up a local mocking server serving your API",
+	Long: `spin up a local mocking server that generates responses from your content schema or returns your defined examples.
+Schema example:
+
+content:
+ application/json:
+  schema:
+   type: object
+   properties:
+    title:
+     type: string
+     description: Description of what to do
+    completed:
+     type: boolean
+    order:
+     type: integer
+     format: int32
+    url:
+     type: string
+     format: uri
+   required:
+    - title
+    - completed
+    - order
+    - url
+
+The mock server will return a response like the following that matches the schema above:
+{
+ "completed": false,
+ "order": 1957493166,
+ "title": "Inventore ut.",
+ "url": "http://langosh.name/andreanne.parker"
+}
+
+Example with example responses:
+
+application/xml:
+ example:
+  title: "Mocked XML title"
+  completed: true
+  order: 13
+  url: "http://mockedURL.com"
+
+The mock server will return this exact response as its specified in an example:
+<doc>
+ <completed>true</completed>
+ <order>13</order>
+ <title>Mocked XML title</title>
+ <url>http://mockedURL.com</url>
+</doc>
+`,
+	Example: "kusk mock -i path-to-openapi-file.yaml",
 	Run: func(cmd *cobra.Command, args []string) {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
@@ -64,16 +115,24 @@ var mockCmd = &cobra.Command{
 			ui.Fail(err)
 		}
 
-		if err := writeMockingConfigIfNotExists(homeDir); err != nil {
+		mockingConfigFilePath := path.Join(homeDir, ".kusk", "openapi-mock.yaml")
+		if err := writeMockingConfigIfNotExists(mockingConfigFilePath); err != nil {
 			ui.Fail(err)
 		}
 
-		if _, err := spec.NewParser(openapi3.NewLoader()).Parse(apiSpecPath); err != nil {
+		// we need the absolute path of the file in the filesystem
+		// to properly mount the file into the mocking container
+		absoluteApiSpecPath, err := filepath.Abs(apiSpecPath)
+		if err != nil {
+			ui.Fail(err)
+		}
+
+		if _, err := spec.NewParser(openapi3.NewLoader()).Parse(absoluteApiSpecPath); err != nil {
 			ui.Fail(fmt.Errorf("unable to parse openapi config: %w", err))
 		}
 		ui.Info(ui.Green("🎉 successfully parsed OpenAPI spec"))
 
-		watcher, err := setupFileWatcher(apiSpecPath)
+		watcher, err := setupFileWatcher(absoluteApiSpecPath)
 		if err != nil {
 			ui.Fail(err)
 		}
@@ -87,7 +146,7 @@ var mockCmd = &cobra.Command{
 		}
 
 		ctx := context.Background()
-		mockServer, err := mockingServer.New(ctx, cli, path.Join(homeDir, ".kusk", "openapi-mock.yaml"), apiSpecPath)
+		mockServer, err := mockingServer.New(ctx, cli, mockingConfigFilePath, absoluteApiSpecPath)
 		if err != nil {
 			ui.Fail(err)
 		}
@@ -183,8 +242,7 @@ func setupFileWatcher(apiSpecPath string) (*fsnotify.Watcher, error) {
 	return watcher, nil
 }
 
-func writeMockingConfigIfNotExists(homeDir string) error {
-	mockingConfigPath := path.Join(homeDir, ".kusk", "openapi-mock.yaml")
+func writeMockingConfigIfNotExists(mockingConfigPath string) error {
 	_, err := os.Stat(mockingConfigPath)
 	if err == nil {
 		return nil
@@ -239,4 +297,5 @@ func decorateLogEntry(entry mockingServer.AccessLogEntry) string {
 func init() {
 	rootCmd.AddCommand(mockCmd)
 	mockCmd.Flags().StringVarP(&apiSpecPath, "in", "i", "", "path to openapi spec you wish to mock")
+	mockCmd.MarkFlagRequired("in")
 }
