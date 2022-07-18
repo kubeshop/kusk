@@ -1,10 +1,10 @@
 ## kusk mock
 
-spin up a local mocking server serving your API
+Spin up a local mocking server serving your API
 
 ### Synopsis
 
-spin up a local mocking server that generates responses from your content schema or returns your defined examples.
+Spin up a local mocking server that generates responses from your content schema or returns your defined examples.
 Schema example:
 
 content:

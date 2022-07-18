@@ -53,8 +53,8 @@ import (
 // mockCmd represents the mock command
 var mockCmd = &cobra.Command{
 	Use:   "mock",
-	Short: "spin up a local mocking server serving your API",
-	Long: `spin up a local mocking server that generates responses from your content schema or returns your defined examples.
+	Short: "Spin up a local mocking server serving your API",
+	Long: `Spin up a local mocking server that generates responses from your content schema or returns your defined examples.
 Schema example:
 
 content:
