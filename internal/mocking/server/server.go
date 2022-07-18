@@ -51,6 +51,9 @@ func New(ctx context.Context, client *client.Client, configFile, apiToMock strin
 }
 
 func (m MockServer) Start(ctx context.Context) (string, error) {
+	containerApiSpecPath := "mocking/fake-api.yaml"
+	containerMockingConfigFilePath := "/app/mocking/openapi-mock.yaml"
+
 	resp, err := m.client.ContainerCreate(
 		ctx,
 		&container.Config{
@@ -60,19 +63,19 @@ func (m MockServer) Start(ctx context.Context) (string, error) {
 			AttachStdout: true,
 			AttachStderr: true,
 			Env: []string{
-				"OPENAPI_MOCK_SPECIFICATION_URL=mocking/fake-api.yaml",
+				"OPENAPI_MOCK_SPECIFICATION_URL=" + containerApiSpecPath,
 			},
 			Cmd: strslice.StrSlice{
 				"serve",
 				"--configuration",
-				"/app/mocking/openapi-mock.yaml",
+				containerMockingConfigFilePath,
 			},
 		},
 		&container.HostConfig{
 			AutoRemove: true,
 			Binds: []string{
-				m.apiToMock + ":/app/mocking/fake-api.yaml",
-				m.configFile + ":/app/mocking/openapi-mock.yaml",
+				m.apiToMock + ":/app/" + containerApiSpecPath,
+				m.configFile + ":" + containerMockingConfigFilePath,
 			},
 			PortBindings: map[nat.Port][]nat.PortBinding{
 				nat.Port("8080"): {
@@ -99,12 +102,12 @@ func (m MockServer) Start(ctx context.Context) (string, error) {
 }
 
 func (m MockServer) Restart(ctx context.Context, MockServerId string) error {
-	timeout := 10 * time.Second
+	timeout := 5 * time.Second
 	return m.client.ContainerRestart(ctx, MockServerId, &timeout)
 }
 
 func (m MockServer) Stop(ctx context.Context, MockServerId string) error {
-	timeout := 10 * time.Second
+	timeout := 5 * time.Second
 	return m.client.ContainerStop(ctx, MockServerId, &timeout)
 }
 
@@ -124,27 +127,9 @@ func (m MockServer) StreamLogs(ctx context.Context, containerId string) {
 	}
 	defer reader.Close()
 
-	// methodColors := map[string]func(...interface{}) string{
-	// 	http.MethodGet:     ui.Blue,
-	// 	http.MethodPost:    ui.Green,
-	// 	http.MethodDelete:  ui.LightRed,
-	// 	http.MethodHead:    ui.LightBlue,
-	// 	http.MethodPut:     ui.Yellow,
-	// 	http.MethodPatch:   ui.Red,
-	// 	http.MethodConnect: ui.LightCyan,
-	// 	http.MethodOptions: ui.LightYellow,
-	// 	http.MethodTrace:   ui.White,
-	// }
-
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		m.LogCh <- newAccessLogEntry(scanner.Text())
-
-		// if intStatusCode, err := strconv.Atoi(statusCode); err == nil && intStatusCode > 399 {
-		// 	decoratedStatusCode = ui.Red(statusCode)
-		// }
-
-		// ui.Info(ui.DarkGray(timeStamp) + " " + methodColors[method]("[", method, "]") + " " + decoratedStatusCode + " " + ui.White(path))
 	}
 }
 
