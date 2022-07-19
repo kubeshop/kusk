@@ -127,9 +127,11 @@ The mock server will return this exact response as its specified in an example:
 			ui.Fail(err)
 		}
 
-		if _, err := spec.NewParser(openapi3.NewLoader()).Parse(absoluteApiSpecPath); err != nil {
+		spec, err := spec.NewParser(openapi3.NewLoader()).Parse(absoluteApiSpecPath)
+		if err != nil || spec.Validate(context.Background()) != nil {
 			ui.Fail(fmt.Errorf("unable to parse openapi config: %w", err))
 		}
+
 		ui.Info(ui.Green("🎉 successfully parsed OpenAPI spec"))
 
 		watcher, err := setupFileWatcher(absoluteApiSpecPath)
@@ -218,6 +220,11 @@ The mock server will return this exact response as its specified in an example:
 					return
 				}
 				ui.Info(decorateLogEntry(logEntry))
+			case err, ok := <-mockServer.ErrCh:
+				if !ok {
+					return
+				}
+				ui.Warn(err.Error())
 			case <-sigs:
 				ui.Info("😴 shutting down mocking server")
 				if err := mockServer.Stop(ctx, mockServerId); err != nil {

@@ -3,6 +3,7 @@ package server
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -21,6 +22,7 @@ type MockServer struct {
 	apiToMock  string
 
 	LogCh chan AccessLogEntry
+	ErrCh chan error
 }
 
 type AccessLogEntry struct {
@@ -28,6 +30,8 @@ type AccessLogEntry struct {
 	Method     string
 	Path       string
 	StatusCode string
+
+	Error error
 }
 
 func New(ctx context.Context, client *client.Client, configFile, apiToMock string) (MockServer, error) {
@@ -47,6 +51,7 @@ func New(ctx context.Context, client *client.Client, configFile, apiToMock strin
 		configFile: configFile,
 		apiToMock:  apiToMock,
 		LogCh:      make(chan AccessLogEntry),
+		ErrCh:      make(chan error),
 	}, nil
 }
 
@@ -123,18 +128,28 @@ func (m MockServer) StreamLogs(ctx context.Context, containerId string) {
 		Timestamps: false,
 	})
 	if err != nil {
-		panic(err)
+		m.ErrCh <- err
+		return
 	}
 	defer reader.Close()
 
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
-		m.LogCh <- newAccessLogEntry(scanner.Text())
+		if le, err := newAccessLogEntry(scanner.Text()); err != nil {
+			m.ErrCh <- err
+		} else {
+			m.LogCh <- le
+		}
 	}
 }
 
-func newAccessLogEntry(rawLog string) AccessLogEntry {
+func newAccessLogEntry(rawLog string) (AccessLogEntry, error) {
+	if strings.Contains(rawLog, "warning") || strings.Contains(rawLog, "error") {
+		return AccessLogEntry{}, errors.New(rawLog)
+	}
+
 	logLine := strings.Split(rawLog, " ")
+
 	timeStamp := strings.TrimPrefix(logLine[3], "[")
 	method := strings.TrimPrefix(logLine[5], "\"")
 	path := logLine[6]
@@ -145,5 +160,5 @@ func newAccessLogEntry(rawLog string) AccessLogEntry {
 		Method:     method,
 		Path:       path,
 		StatusCode: statusCode,
-	}
+	}, nil
 }
