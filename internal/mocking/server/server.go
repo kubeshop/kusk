@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 	"time"
 
@@ -42,8 +43,9 @@ func New(ctx context.Context, client *client.Client, configFile, apiToMock strin
 		return MockServer{}, fmt.Errorf("unable to pull mock server image: %w", err)
 	}
 
-	// Don't need the output so close it immediately
-	reader.Close()
+	// wait for download to complete, discard output
+	defer reader.Close()
+	io.Copy(io.Discard, reader)
 
 	return MockServer{
 		client:     client,
