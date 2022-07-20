@@ -17,7 +17,7 @@
 * [kusk dashboard](kusk_dashboard.md)	 - Access the kusk dashboard
 * [kusk docs](kusk_docs.md)	 - parent command for api related functions
 * [kusk install](kusk_install.md)	 - Install kusk-gateway, envoy-fleet, api, and dashboard in a single command
-* [kusk mock](kusk_mock.md)	 - spin up a local mocking server serving your API
+* [kusk mock](kusk_mock.md)	 - Spin up a local mocking server serving your API
 * [kusk upgrade](kusk_upgrade.md)	 - Upgrade kusk-gateway, envoy-fleet, api, and dashboard in a single command
 * [kusk version](kusk_version.md)	 - version for kusk
 

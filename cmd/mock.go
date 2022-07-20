@@ -338,5 +338,5 @@ func init() {
 	mockCmd.Flags().StringVarP(&apiSpecPath, "in", "i", "", "path to openapi spec you wish to mock")
 	mockCmd.MarkFlagRequired("in")
 
-	mockCmd.Flags().Uint32VarP(&mockServerPort, "port", "p", 0, "--port to expose mock server on")
+	mockCmd.Flags().Uint32VarP(&mockServerPort, "port", "p", 0, "port to expose mock server on. If none specified, will search for next available port starting from 8080")
 }
