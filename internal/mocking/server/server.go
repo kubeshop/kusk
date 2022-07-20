@@ -21,6 +21,7 @@ type MockServer struct {
 	image      string
 	configFile string
 	apiToMock  string
+	port       uint32
 
 	LogCh chan AccessLogEntry
 	ErrCh chan error
@@ -35,7 +36,7 @@ type AccessLogEntry struct {
 	Error error
 }
 
-func New(ctx context.Context, client *client.Client, configFile, apiToMock string) (MockServer, error) {
+func New(ctx context.Context, client *client.Client, configFile, apiToMock string, port uint32) (MockServer, error) {
 	const openApiMockImage = "muonsoft/openapi-mock:v0.3.1"
 
 	reader, err := client.ImagePull(ctx, openApiMockImage, types.ImagePullOptions{})
@@ -52,6 +53,7 @@ func New(ctx context.Context, client *client.Client, configFile, apiToMock strin
 		image:      openApiMockImage,
 		configFile: configFile,
 		apiToMock:  apiToMock,
+		port:       port,
 		LogCh:      make(chan AccessLogEntry),
 		ErrCh:      make(chan error),
 	}, nil
@@ -87,7 +89,7 @@ func (m MockServer) Start(ctx context.Context) (string, error) {
 			PortBindings: map[nat.Port][]nat.PortBinding{
 				nat.Port("8080"): {
 					{
-						HostIP: "127.0.0.1", HostPort: "8080",
+						HostIP: "127.0.0.1", HostPort: fmt.Sprint(m.port),
 					},
 				},
 			},
