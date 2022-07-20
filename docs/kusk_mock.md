@@ -68,8 +68,9 @@ kusk mock -i path-to-openapi-file.yaml
 ### Options
 
 ```
-  -h, --help        help for mock
-  -i, --in string   path to openapi spec you wish to mock
+  -h, --help          help for mock
+  -i, --in string     path to openapi spec you wish to mock
+  -p, --port uint32   port to expose mock server on. If none specified, will search for next available port starting from 8080
 ```
 
 ### Options inherited from parent commands

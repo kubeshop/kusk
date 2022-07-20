@@ -30,6 +30,7 @@ import (
 	"fmt"
 	"io/fs"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -49,6 +50,8 @@ import (
 	"github.com/kubeshop/kusk-gateway/pkg/spec"
 	mockingServer "github.com/kubeshop/kusk/internal/mocking/server"
 )
+
+var mockServerPort uint32
 
 // mockCmd represents the mock command
 var mockCmd = &cobra.Command{
@@ -147,8 +150,15 @@ The mock server will return this exact response as its specified in an example:
 			ui.Fail(fmt.Errorf("unable to create new docker client from environment: %w", err))
 		}
 
+		if mockServerPort == 0 {
+			mockServerPort, err = scanForNextAvailablePort(8080)
+			if err != nil {
+				ui.Fail(err)
+			}
+		}
+
 		ctx := context.Background()
-		mockServer, err := mockingServer.New(ctx, cli, mockingConfigFilePath, absoluteApiSpecPath)
+		mockServer, err := mockingServer.New(ctx, cli, mockingConfigFilePath, absoluteApiSpecPath, mockServerPort)
 		if err != nil {
 			ui.Fail(err)
 		}
@@ -163,7 +173,7 @@ The mock server will return this exact response as its specified in an example:
 		go mockServer.StreamLogs(ctx, mockServerId)
 
 		ui.Info(ui.Green("🎉 server successfully initialized"))
-		ui.Info(ui.DarkGray("URL: ") + ui.White("http://localhost:8080"))
+		ui.Info(ui.DarkGray("URL: ") + ui.White("http://localhost:"+fmt.Sprint(mockServerPort)))
 
 		ui.Info(ui.White("⏳ watching for file changes in " + apiSpecPath))
 		fmt.Println()
@@ -236,6 +246,28 @@ The mock server will return this exact response as its specified in an example:
 	},
 }
 
+func localPortCheck(port uint32) error {
+	ln, err := net.Listen("tcp", "127.0.0.1:"+fmt.Sprint(port))
+	if err != nil {
+		return err
+	}
+
+	ln.Close()
+	return nil
+}
+
+func scanForNextAvailablePort(startingPort uint32) (uint32, error) {
+	const maxPortNumber = 65535
+
+	for port := startingPort; port <= maxPortNumber; port++ {
+		if localPortCheck(port) == nil {
+			return port, nil
+		}
+	}
+
+	return 0, errors.New("no available local port")
+}
+
 func setupFileWatcher(apiSpecPath string) (*fsnotify.Watcher, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -305,4 +337,6 @@ func init() {
 	rootCmd.AddCommand(mockCmd)
 	mockCmd.Flags().StringVarP(&apiSpecPath, "in", "i", "", "path to openapi spec you wish to mock")
 	mockCmd.MarkFlagRequired("in")
+
+	mockCmd.Flags().Uint32VarP(&mockServerPort, "port", "p", 0, "port to expose mock server on. If none specified, will search for next available port starting from 8080")
 }
