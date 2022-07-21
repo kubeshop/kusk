@@ -131,8 +131,12 @@ The mock server will return this exact response as its specified in an example:
 		}
 
 		spec, err := spec.NewParser(openapi3.NewLoader()).Parse(absoluteApiSpecPath)
-		if err != nil || spec.Validate(context.Background()) != nil {
-			ui.Fail(fmt.Errorf("unable to parse openapi config: %w", err))
+		if err != nil {
+			ui.Fail(fmt.Errorf("error when parsing openapi spec: %w", err))
+		}
+
+		if err := spec.Validate(context.Background()); err != nil {
+			ui.Fail(fmt.Errorf("openapi spec failed validation: %w", err))
 		}
 
 		ui.Info(ui.Green("🎉 successfully parsed OpenAPI spec"))
