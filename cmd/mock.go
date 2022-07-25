@@ -29,9 +29,9 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"path"
@@ -40,10 +40,10 @@ import (
 	"syscall"
 
 	"github.com/docker/docker/client"
-	"github.com/fsnotify/fsnotify"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/kubeshop/kusk/internal/config"
 	"github.com/kubeshop/kusk/internal/mocking"
+	fileWatcher "github.com/kubeshop/kusk/internal/mocking/filewatcher"
 	"github.com/kubeshop/testkube/pkg/ui"
 	"github.com/spf13/cobra"
 
@@ -107,7 +107,13 @@ The mock server will return this exact response as its specified in an example:
  <url>http://mockedURL.com</url>
 </doc>
 `,
-	Example: "kusk mock -i path-to-openapi-file.yaml",
+	Example: `
+To mock an api on the local file system
+$ kusk mock -i path-to-openapi-file.yaml
+
+To mock an api from a url
+$ kusk mock -i https://url.to.api.com
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
@@ -123,14 +129,7 @@ The mock server will return this exact response as its specified in an example:
 			ui.Fail(err)
 		}
 
-		// we need the absolute path of the file in the filesystem
-		// to properly mount the file into the mocking container
-		absoluteApiSpecPath, err := filepath.Abs(apiSpecPath)
-		if err != nil {
-			ui.Fail(err)
-		}
-
-		spec, err := spec.NewParser(openapi3.NewLoader()).Parse(absoluteApiSpecPath)
+		spec, err := spec.NewParser(openapi3.NewLoader()).Parse(apiSpecPath)
 		if err != nil {
 			ui.Fail(fmt.Errorf("error when parsing openapi spec: %w", err))
 		}
@@ -141,11 +140,27 @@ The mock server will return this exact response as its specified in an example:
 
 		ui.Info(ui.Green("🎉 successfully parsed OpenAPI spec"))
 
-		watcher, err := setupFileWatcher(absoluteApiSpecPath)
+		u, err := url.Parse(apiSpecPath)
 		if err != nil {
 			ui.Fail(err)
 		}
-		defer watcher.Close()
+
+		var watcher *fileWatcher.FileWatcher
+		absoluteApiSpecPath := apiSpecPath
+		if apiOnFileSystem := u.Host == ""; apiOnFileSystem {
+			// we need the absolute path of the file in the filesystem
+			// to properly mount the file into the mocking container
+			absoluteApiSpecPath, err = filepath.Abs(apiSpecPath)
+			if err != nil {
+				ui.Fail(err)
+			}
+
+			watcher, err = fileWatcher.New(absoluteApiSpecPath)
+			if err != nil {
+				ui.Fail(err)
+			}
+			defer watcher.Close()
+		}
 
 		ui.Info(ui.White("☀️ initializing mocking server"))
 
@@ -179,33 +194,24 @@ The mock server will return this exact response as its specified in an example:
 		ui.Info(ui.Green("🎉 server successfully initialized"))
 		ui.Info(ui.DarkGray("URL: ") + ui.White("http://localhost:"+fmt.Sprint(mockServerPort)))
 
-		ui.Info(ui.White("⏳ watching for file changes in " + apiSpecPath))
-		fmt.Println()
-
 		// set up signal channel listening for ctrl+c
 		sigs := make(chan os.Signal, 1)
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
+		// if watcher is nil, then the api comes from a URL and we shouldn't watch it
+		// otherwise it's on the file system and we can watch for changes
+		if watcher != nil {
+			ui.Info(ui.White("⏳ watching for file changes in " + apiSpecPath))
+			go watcher.Watch(func() {
+				ui.Info("✍️ change detected in " + apiSpecPath)
+				if err := mockServer.Stop(ctx, mockServerId); err != nil {
+					ui.Fail(fmt.Errorf("unable to update mocking server"))
+				}
+			}, sigs)
+		}
+
 		for {
 			select {
-			case event, ok := <-watcher.Events:
-				if !ok {
-					return
-				}
-				if event.Op&fsnotify.Write == fsnotify.Write {
-					ui.Info("✍️ change detected in " + apiSpecPath)
-					if err := mockServer.Stop(ctx, mockServerId); err != nil {
-						ui.Fail(fmt.Errorf("unable to update mocking server"))
-					}
-				}
-			case err, ok := <-watcher.Errors:
-				if !ok {
-					// channel closed
-					return
-				}
-				if err != nil {
-					log.Println("error:", err)
-				}
 			case status, ok := <-statusCh:
 				if !ok {
 					return
@@ -250,17 +256,17 @@ The mock server will return this exact response as its specified in an example:
 	},
 }
 
-func localPortCheck(port uint32) error {
-	ln, err := net.Listen("tcp", "127.0.0.1:"+fmt.Sprint(port))
-	if err != nil {
-		return err
+func scanForNextAvailablePort(startingPort uint32) (uint32, error) {
+	localPortCheck := func(port uint32) error {
+		ln, err := net.Listen("tcp", "127.0.0.1:"+fmt.Sprint(port))
+		if err != nil {
+			return err
+		}
+
+		ln.Close()
+		return nil
 	}
 
-	ln.Close()
-	return nil
-}
-
-func scanForNextAvailablePort(startingPort uint32) (uint32, error) {
 	const maxPortNumber = 65535
 
 	for port := startingPort; port <= maxPortNumber; port++ {
@@ -270,19 +276,6 @@ func scanForNextAvailablePort(startingPort uint32) (uint32, error) {
 	}
 
 	return 0, errors.New("no available local port")
-}
-
-func setupFileWatcher(apiSpecPath string) (*fsnotify.Watcher, error) {
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		return nil, fmt.Errorf("unable to create new file watcher: %w", err)
-	}
-
-	if err := watcher.Add(apiSpecPath); err != nil {
-		return nil, fmt.Errorf("unable to add api file %s: %w", apiSpec, err)
-	}
-
-	return watcher, nil
 }
 
 func writeMockingConfigIfNotExists(mockingConfigPath string) error {
