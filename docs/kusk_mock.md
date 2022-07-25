@@ -62,7 +62,13 @@ kusk mock [flags]
 ### Examples
 
 ```
-kusk mock -i path-to-openapi-file.yaml
+
+To mock an api on the local file system
+$ kusk mock -i path-to-openapi-file.yaml
+
+To mock an api from a url
+$ kusk mock -i https://url.to.api.com
+
 ```
 
 ### Options

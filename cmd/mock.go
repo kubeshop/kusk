@@ -107,7 +107,13 @@ The mock server will return this exact response as its specified in an example:
  <url>http://mockedURL.com</url>
 </doc>
 `,
-	Example: "kusk mock -i path-to-openapi-file.yaml",
+	Example: `
+To mock an api on the local file system
+$ kusk mock -i path-to-openapi-file.yaml
+
+To mock an api from a url
+$ kusk mock -i https://url.to.api.com
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
