@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"strings"
 	"time"
 
@@ -60,8 +61,23 @@ func New(ctx context.Context, client *client.Client, configFile, apiToMock strin
 }
 
 func (m MockServer) Start(ctx context.Context) (string, error) {
-	containerApiSpecPath := "mocking/fake-api.yaml"
+	u, err := url.Parse(m.apiToMock)
+	if err != nil {
+		return "", err
+	}
+
 	containerMockingConfigFilePath := "/app/mocking/openapi-mock.yaml"
+	binds := []string{
+		m.configFile + ":" + containerMockingConfigFilePath,
+	}
+
+	containerApiSpecPath := "mocking/fake-api.yaml"
+	if u.Host != "" {
+		containerApiSpecPath = m.apiToMock // serve from url
+	} else {
+		// serving from local file so mount it into container
+		binds = append(binds, m.apiToMock+":/app/"+containerApiSpecPath)
+	}
 
 	resp, err := m.client.ContainerCreate(
 		ctx,
@@ -82,10 +98,7 @@ func (m MockServer) Start(ctx context.Context) (string, error) {
 		},
 		&container.HostConfig{
 			AutoRemove: true,
-			Binds: []string{
-				m.apiToMock + ":/app/" + containerApiSpecPath,
-				m.configFile + ":" + containerMockingConfigFilePath,
-			},
+			Binds:      binds,
 			PortBindings: map[nat.Port][]nat.PortBinding{
 				nat.Port("8080"): {
 					{
