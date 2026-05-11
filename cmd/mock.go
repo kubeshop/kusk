@@ -234,7 +234,7 @@ $ kusk mock -i https://url.to.api.com
 				if !ok {
 					return
 				}
-				ui.Fail(fmt.Errorf("an unexpected error occured: %w", err))
+				ui.Fail(fmt.Errorf("an unexpected error occurred: %w", err))
 			case logEntry, ok := <-mockServer.LogCh:
 				if !ok {
 					return
